@@ -1,0 +1,50 @@
+.brand-app .shop-modal {
+  width: min(660px, calc(100% - 32px));
+  border: 0;
+  padding: 0;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 10px 60px #0003;
+  max-height: 92dvh;
+}
+.brand-app .shop-modal::backdrop {
+  background: #141b20a0;
+}
+.brand-app .modal-inner {
+  padding: 24px 28px 30px;
+}
+.brand-app .modal-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.brand-app .modal-heading h2 {
+  font-size: 27px;
+}
+.brand-app .shop-modal.drawer,
+.brand-app .shop-modal.navigation-drawer {
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(510px, 100%);
+  margin: 0 0 0 auto;
+}
+.brand-app .shop-modal.navigation-drawer {
+  width: min(390px, 100%);
+  margin: 0 auto 0 0;
+}
+.brand-app[data-minicart='compact'] .shop-modal.drawer {
+  width: min(445px, 100%);
+}
+.brand-app .info-content {
+  display: grid;
+  gap: 20px;
+}
+@media (max-width: 480px) {
+  .brand-app .modal-inner {
+    padding: 20px;
+  }
+}

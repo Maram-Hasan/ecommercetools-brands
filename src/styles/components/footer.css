@@ -1,0 +1,177 @@
+.brand-app .brand-switcher {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 10px var(--page-space);
+  color: #646762;
+  font-size: 9px;
+  letter-spacing: 0.09em;
+}
+.brand-app .brand-switcher a {
+  font-size: 10px;
+  padding: 0 0 2px;
+}
+.brand-app .brand-switcher a[aria-current] {
+  color: var(--ink);
+  border-bottom: 1px solid currentColor;
+}
+.brand-app .service-ribbon {
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+  padding: 28px var(--page-space);
+  border-block: 1px solid var(--line);
+}
+.brand-app .service-ribbon > div {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 12px;
+}
+.brand-app .site-footer {
+  background: #f5f5f5;
+  padding: 0;
+}
+.brand-app .footer-main {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 40px;
+  max-width: 1344px;
+  margin: auto;
+  padding: 55px var(--page-space);
+}
+.brand-app .newsletter h2 {
+  font-size: 24px;
+  max-width: 360px;
+}
+.brand-app .newsletter p {
+  max-width: 370px;
+  margin: 16px 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.brand-app .newsletter form {
+  display: flex;
+  margin-bottom: 12px;
+}
+.brand-app .newsletter input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #aeb3af;
+  font-size: 12px;
+}
+.brand-app .newsletter .button {
+  white-space: nowrap;
+  padding: 12px 15px;
+}
+.brand-app .newsletter small {
+  font-size: 9px;
+  color: var(--muted);
+}
+.brand-app .footer-column h3 {
+  font-size: 12px;
+  margin: 5px 0 20px;
+}
+.brand-app .footer-column .footer-toggle {
+  display: none;
+}
+.brand-app .footer-column button {
+  display: block;
+  background: none;
+  border: 0;
+  padding: 5px 0;
+  font-size: 11px;
+  color: #62645f;
+  text-align: left;
+}
+.brand-app .footer-bottom {
+  max-width: 1280px;
+  margin: auto;
+  padding: 28px var(--page-space);
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+.brand-app .footer-bottom p,
+.brand-app .footer-bottom button {
+  font-size: 9px;
+  color: var(--muted);
+}
+.brand-app .footer-bottom button {
+  background: none;
+  border: 0;
+}
+@media (max-width: 1100px) {
+  .brand-app .footer-main {
+    gap: 25px;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  }
+}
+@media (max-width: 1023px) {
+  .brand-app .footer-main {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-block: 35px;
+  }
+  .brand-app .newsletter {
+    grid-column: 1/-1;
+    max-width: 500px;
+    margin: 0 auto 28px;
+    width: 100%;
+    text-align: center;
+  }
+  .brand-app .newsletter h2,
+  .brand-app .newsletter p {
+    max-width: none;
+  }
+  .brand-app .footer-column {
+    border-top: 1px solid #d5d5d5;
+  }
+  .brand-app .footer-column h3 {
+    display: none;
+  }
+  .brand-app .footer-column .footer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 17px 0;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .brand-app .footer-links {
+    display: none;
+    padding-bottom: 16px;
+  }
+  .brand-app .footer-column.is-open .footer-links {
+    display: block;
+  }
+  .brand-app .footer-links button {
+    min-height: 40px;
+    font-size: 12px;
+  }
+  .brand-app .footer-bottom {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .brand-app .footer-bottom p {
+    order: 3;
+    width: 100%;
+  }
+  .brand-app .service-ribbon {
+    padding: 23px 18px;
+    gap: 15px;
+  }
+  .brand-app .service-ribbon > div {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-sm);
+    font-size: 10px;
+  }
+}

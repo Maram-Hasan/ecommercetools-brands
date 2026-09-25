@@ -17,6 +17,7 @@ function products(brand: keyof typeof keys) {
   return [
     {
       id: id(brand === 'fg' ? 1 : brand === 'gr' ? 2 : 5),
+      slug: `${brand}-product-${id(brand === 'fg' ? 1 : brand === 'gr' ? 2 : 5)}`,
       name: `${brand.toUpperCase()} Connected Chair`,
       description: 'Description maintained in commercetools.',
       categories: [
@@ -51,6 +52,7 @@ function products(brand: keyof typeof keys) {
     {
       id: id(brand === 'fg' ? 3 : brand === 'gr' ? 4 : 6),
       name: `${brand.toUpperCase()} Connected Sofa`,
+      slug: `${brand}-connected-sofa`,
       description: 'Another published store product.',
       categories: [
         category('Furniture'),
@@ -102,7 +104,9 @@ test.beforeEach(async ({ page }) => {
       });
     if (url.pathname.startsWith('/api/products/')) {
       const product = collection.find(
-        (item) => item.id === url.pathname.split('/').pop(),
+        (item) =>
+          item.id === url.pathname.split('/').pop() ||
+          item.slug === decodeURIComponent(url.pathname.split('/').pop()!),
       );
       return route.fulfill(
         product
@@ -597,7 +601,7 @@ test('GR production PDP uses real swatches, gallery, inventory and quantity tota
   ).toBeDisabled();
   await page.getByRole('button', { name: 'Choose Green', exact: true }).click();
   await expect(page.locator('.product-heading-row .sku')).toHaveText(
-    'Item: #159041 GREEN',
+    'SKU: 159041 GREEN',
   );
   await expect(page.locator('.gallery-image img')).toHaveAttribute(
     'src',
@@ -676,7 +680,7 @@ test('FG PDP size selection updates images, SKU, price and purchase availability
   await expect(
     page.getByRole('group', { name: 'Size: 3 x 5', exact: true }),
   ).toBeVisible();
-  await expect(page.locator('.fg-option')).toHaveCount(4);
+  await expect(page.locator('.tile-option')).toHaveCount(4);
   await page
     .getByRole('button', { name: 'Choose 7 Round', exact: true })
     .click();
@@ -691,7 +695,7 @@ test('FG PDP size selection updates images, SKU, price and purchase availability
   await page.getByRole('button', { name: 'Choose 5 x 8', exact: true }).click();
   await expect(add).toBeEnabled();
   await expect(page.locator('.product-heading-row .sku')).toHaveText(
-    'Item: #PAD-LARGE',
+    'SKU: PAD-LARGE',
   );
   await expect(page.locator('.gallery-image img')).toHaveAttribute(
     'src',
@@ -765,4 +769,111 @@ test('catalog loads every API page before searching and filtering', async ({
     'Later Page Sofa',
   );
   expect(offsets).toContain(1);
+});
+
+test('a stale cart read cannot overwrite a completed add', async ({ page }) => {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/api/cart?*', async (route) => {
+    await held;
+    await route.fulfill({ json: null });
+  });
+  await page.goto('/gr/product/' + id(2));
+  await page.getByRole('button', { name: 'ADD TO CART', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Your Bag (1)' }),
+  ).toBeVisible();
+  const response = page.waitForResponse(
+    (r) => new URL(r.url()).pathname === '/api/cart',
+  );
+  release();
+  await response;
+  await expect(
+    page.getByRole('heading', { name: 'Your Bag (1)' }),
+  ).toBeVisible();
+});
+
+test('cart conflict refreshes server state without replaying the add', async ({
+  page,
+}) => {
+  let writes = 0;
+  await page.route('**/api/cart/items?*', (route) => {
+    writes++;
+    return route.fulfill({
+      status: 409,
+      json: { message: 'Your cart changed in another tab. Please try again.' },
+    });
+  });
+  await page.goto('/gr/product/' + id(2));
+  await page.getByRole('button', { name: 'ADD TO CART', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('changed in another tab');
+  await expect(
+    page.getByRole('button', { name: 'ADD TO CART', exact: true }),
+  ).toBeEnabled();
+  expect(writes).toBe(1);
+});
+
+test('product links use canonical slugs and support refresh and history', async ({
+  page,
+}) => {
+  await page.goto('/fg/category/all-products');
+  await page.locator('.card-content a').first().click();
+  await expect(page).toHaveURL(/\/fg\/product\/fg-product-/);
+  await expect(page.locator('.product-info-panel h1')).toHaveText(
+    'FG Connected Chair',
+  );
+  await page.reload();
+  await expect(page.locator('.product-info-panel h1')).toHaveText(
+    'FG Connected Chair',
+  );
+  await page.goBack();
+  await expect(page).toHaveURL(/\/fg\/category\/all-products/);
+  await expect(page.locator('.shop-product-card')).toHaveCount(2);
+});
+
+test('decoded category slugs select the matching collection', async ({
+  page,
+}) => {
+  const collection = products('fg').map((product) => ({
+    ...product,
+    categories: [{ id: 'bed-bath', slug: 'bed & bath', name: 'Bed & Bath' }],
+  }));
+  await page.route('**/api/products?*', (route) =>
+    route.fulfill({
+      json: {
+        products: collection,
+        total: collection.length,
+        offset: 0,
+        limit: 24,
+      },
+    }),
+  );
+  await page.goto('/fg/category/bed%20%26%20bath');
+  await expect(page.locator('.category-intro h1')).toHaveText('Bed & Bath');
+  await expect(page.locator('.shop-product-card')).toHaveCount(2);
+});
+
+test('legacy demo remains isolated from storefront brands', async ({ page }) => {
+  await page.route('**/api/**', (route) => {
+    const url = new URL(route.request().url());
+    if (url.searchParams.get('store') !== 'b2c-retail-store')
+      return route.fallback();
+    return route.fulfill({
+      json:
+        url.pathname === '/api/cart'
+          ? null
+          : { products: [], total: 0, offset: 0, limit: 24 },
+    });
+  });
+  await page.goto('/?store=b2c-retail-store');
+  await expect(
+    page.getByRole('combobox', { name: 'Store', exact: true }),
+  ).toHaveValue('b2c-retail-store');
+  await expect(page.locator('.store-switcher option')).toHaveCount(2);
+  await page.goto('/fg');
+  await expect(page.locator('.brand-app')).toHaveAttribute('data-brand', 'fg');
+  await expect(page.locator('.shop-product-card')).toHaveCount(2);
 });

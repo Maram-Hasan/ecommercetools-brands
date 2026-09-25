@@ -249,3 +249,37 @@ test('a Store without selections retains its complete-catalog behavior', async (
   assert.equal(result.total, 117);
   assert.equal(result.products.length, 1);
 });
+
+test('slug lookup pages only the requested Store catalog and reports missing products', async (context) => {
+  const pages: number[] = [];
+  context.mock.method(
+    commerce,
+    'products',
+    async (offset: number, key: string) => {
+      assert.equal(key, 'grandin-road');
+      pages.push(offset);
+      return {
+        products: [
+          {
+            id: id(offset + 1),
+            slug: offset ? 'wanted' : 'other',
+            name: 'Chair',
+            description: '',
+            variants: [],
+          },
+        ],
+        total: 2,
+        limit: 1,
+        offset,
+      };
+    },
+  );
+  assert.equal(
+    (await commerce.productBySlug('wanted', 'grandin-road')).id,
+    id(2),
+  );
+  assert.deepEqual(pages, [0, 1]);
+  await assert.rejects(commerce.productBySlug('absent', 'grandin-road'), {
+    statusCode: 404,
+  });
+});

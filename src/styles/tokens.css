@@ -1,0 +1,7 @@
+.brand-app {
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --content-width: 1344px;
+}

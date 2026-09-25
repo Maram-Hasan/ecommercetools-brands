@@ -1,0 +1,63 @@
+.brand-app[data-purchase] .pdp-page .breadcrumbs {
+  font-size: 11px;
+  gap: var(--space-sm);
+}
+.brand-app[data-purchase] .pdp-layout {
+  align-items: start;
+}
+.brand-app[data-purchase] .pdp-page .gallery-thumbnails {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  order: 0;
+  overflow-y: auto;
+}
+.brand-app[data-purchase] .pdp-page .gallery-thumbnails button {
+  background: white;
+  padding: 2px;
+}
+.brand-app[data-purchase] .pdp-page .gallery-image {
+  aspect-ratio: 1;
+  height: auto;
+  background: white;
+}
+.brand-app[data-purchase] .pdp-page .gallery-image img {
+  object-fit: contain;
+}
+.brand-app[data-purchase] .product-heading-row h1 {
+  overflow-wrap: anywhere;
+}
+.brand-app[data-purchase] .product-heading-row .sku {
+  font-size: 11px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.brand-app[data-purchase] .variant-availability {
+  font-size: 12px;
+}
+.brand-app[data-purchase] .quantity-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand-app[data-purchase] .purchase-quantity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.brand-app[data-purchase] .product-purchase .quantity-selector {
+  border-color: var(--pdp-border);
+}
+.brand-app[data-purchase] .product-total {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+.brand-app[data-purchase] .button.add-to-cart {
+  width: 100%;
+  border: 1px solid var(--pdp-primary);
+  background: var(--pdp-primary);
+  color: white;
+}

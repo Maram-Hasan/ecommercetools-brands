@@ -43,7 +43,14 @@ const itemId = '33333333-3333-4333-8333-333333333333';
 
 test('FG, GR and GH Store keys from shared storefronts reach commerce', async (context) => {
   const requested: string[] = [];
-  context.mock.method(commerce, 'products', async (_offset: number, storeKey: string) => { requested.push(storeKey); return { products: [], total: 0, offset: 0, limit: 24 }; });
+  context.mock.method(
+    commerce,
+    'products',
+    async (_offset: number, storeKey: string) => {
+      requested.push(storeKey);
+      return { products: [], total: 0, offset: 0, limit: 24 };
+    },
+  );
   for (const key of ['frontgate', 'grandin-road', 'garnethill']) {
     const response = await fetch(`${base}/products?store=${key}`);
     assert.equal(response.status, 200);
@@ -318,4 +325,33 @@ test('expired carts are cleared and SDK error credentials are never serialized',
   const text = await response.text();
   assert.match(text, /access was denied/i);
   assert.doesNotMatch(text, /test-secret|secret-token|authorization/);
+});
+
+test('slug reads validate the identifier and preserve Store scope', async (context) => {
+  const lookup = context.mock.method(
+    commerce,
+    'productBySlug',
+    async (slug: string, key: string) => {
+      assert.equal(slug, 'blue-chair');
+      assert.equal(key, 'grandin-road');
+      return {
+        id: productId,
+        slug,
+        key: 'product-key',
+        name: 'Chair',
+        description: '',
+        variants: [],
+      };
+    },
+  );
+  const result = await fetch(
+    `${base}/products/by-slug/blue-chair?store=grandin-road`,
+  );
+  assert.equal(result.status, 200);
+  assert.equal((await result.json()).slug, 'blue-chair');
+  assert.equal(
+    (await fetch(`${base}/products/by-slug/a%2Fb?store=grandin-road`)).status,
+    400,
+  );
+  assert.equal(lookup.mock.callCount(), 1);
 });

@@ -1,7 +1,7 @@
 import type { CartUpdateAction } from '@commercetools/platform-sdk';
 import { apiRoot } from './client.js';
 import { config } from '../config.js';
-import { productView } from './mappers.js';
+import { productView } from './mappers/product.mapper.js';
 import { loadStore, storeChannels } from './stores.js';
 import { ApiError } from '../errors.js';
 import { logCatalog, selectionProducts } from './catalog.js';
@@ -101,6 +101,24 @@ export const commerce = {
       offset: body.offset,
       limit: body.limit,
     };
+  },
+
+  async productBySlug(slug: string, storeKey: string) {
+    // Reuse Store selection/publication rules and localization; never search across Stores.
+    let offset = 0;
+    while (offset <= 10000) {
+      const page = await this.products(offset, storeKey);
+      const product = page.products.find((product) => product.slug === slug);
+      if (product) return product;
+      offset += page.limit;
+      if (offset >= page.total)
+        throw new ApiError(404, 'This product is no longer available.');
+      if (!page.products.length || page.limit < 1) break;
+    }
+    throw new ApiError(
+      503,
+      'The complete Store catalog could not be searched.',
+    );
   },
 
   async product(id: string, storeKey: string) {

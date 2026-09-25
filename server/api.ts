@@ -5,9 +5,9 @@ import {
   type Response,
 } from 'express';
 import { commerce } from './commercetools/service.js';
-import { cartView } from './commercetools/mappers.js';
+import { cartView } from './commercetools/mappers/cart.mapper.js';
 import { config } from './config.js';
-import { defaultStoreKey, findStorefront } from '../shared/storefronts.js';
+import { defaultStoreKey, isStoreKey } from './stores.js';
 import { ApiError } from './errors.js';
 
 const cartCookie = (storeKey: string) => `storefront_cart_${storeKey}`;
@@ -73,7 +73,7 @@ export function createApiRouter() {
   });
   router.use((req, res, next) => {
     const storeKey = req.query.store ?? defaultStoreKey;
-    if (typeof storeKey !== 'string' || !findStorefront(storeKey)) {
+    if (typeof storeKey !== 'string' || !isStoreKey(storeKey)) {
       throw new ApiError(
         400,
         'Unknown Store. Select one of the configured storefronts.',
@@ -87,6 +87,17 @@ export function createApiRouter() {
     if (!Number.isInteger(offset) || offset < 0 || offset > 10000)
       throw new ApiError(400, 'Invalid page offset.');
     res.json(await commerce.products(offset, res.locals.storeKey));
+  });
+  router.get('/products/by-slug/:slug', async (req, res) => {
+    const slug = req.params.slug;
+    if (
+      typeof slug !== 'string' ||
+      !slug.trim() ||
+      slug.length > 256 ||
+      /[\/\\]/.test(slug)
+    )
+      throw new ApiError(400, 'Invalid product slug.');
+    res.json(await commerce.productBySlug(slug, res.locals.storeKey));
   });
   router.get('/products/:id', async (req, res) => {
     res.json(await commerce.product(id(req.params.id), res.locals.storeKey));

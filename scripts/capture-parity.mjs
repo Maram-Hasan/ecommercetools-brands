@@ -26,7 +26,11 @@ if (
   throw new Error('Unknown page');
 await mkdir(directory, { recursive: true });
 const previous = selectedBrand
-  ? JSON.parse(await readFile(`${directory}/manifest.json`, 'utf8'))
+  ? JSON.parse(
+      await readFile(`${directory}/manifest.json`, 'utf8').catch(
+        () => '{"records":[]}',
+      ),
+    )
   : { records: [] };
 const records = previous.records.filter(
   (record) =>
@@ -45,6 +49,18 @@ try {
     if (!response.ok)
       throw new Error(`${store}: catalog HTTP ${response.status}`);
     const catalog = await response.json();
+    const allProducts = [...catalog.products];
+    for (
+      let offset = catalog.limit;
+      offset < catalog.total;
+      offset += catalog.limit
+    ) {
+      const next = await fetch(
+        `${origin}/api/products?store=${store}&offset=${offset}`,
+      );
+      if (!next.ok) throw new Error(`${store}: catalog HTTP ${next.status}`);
+      allProducts.push(...(await next.json()).products);
+    }
     const product = catalog.products.find((item) =>
       item.variants.some((variant) => variant.price),
     );
@@ -74,6 +90,32 @@ try {
         return route.abort('blockedbyclient');
       if (new URL(route.request().url()).pathname === '/api/cart')
         return route.fulfill({ json: cart });
+      const url = new URL(route.request().url());
+      if (url.pathname === '/api/products') {
+        const offset = Number(url.searchParams.get('offset') || 0);
+        return route.fulfill({
+          json: {
+            products: allProducts.slice(offset, offset + catalog.limit),
+            total: allProducts.length,
+            limit: catalog.limit,
+            offset,
+          },
+        });
+      }
+      if (url.pathname.startsWith('/api/products/')) {
+        const identifier = decodeURIComponent(url.pathname.split('/').pop());
+        const item = allProducts.find(
+          (item) => item.id === identifier || item.slug === identifier,
+        );
+        return route.fulfill(
+          item
+            ? { json: item }
+            : {
+                status: 404,
+                json: { message: 'Product not in captured Store catalog.' },
+              },
+        );
+      }
       return route.continue();
     });
     const routes = [
@@ -164,7 +206,7 @@ try {
           route,
           file,
           product: product.name,
-          data: 'Live catalog; browser-only cart fixture with one live product; no remote cart writes',
+          data: 'Live Store catalog snapshot captured once per brand; browser-only cart fixture; no remote writes',
           ...metrics,
         });
       }

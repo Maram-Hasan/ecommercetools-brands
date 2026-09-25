@@ -1,0 +1,25 @@
+@media (max-width: 700px) {
+  .brand-app[data-purchase] .pdp-page {
+    padding-inline: 16px;
+  }
+  .brand-app[data-purchase] .pdp-page .breadcrumbs {
+    font-size: 10px;
+  }
+  .brand-app[data-purchase] .pdp-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .brand-app[data-purchase] .pdp-page .product-gallery {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .brand-app[data-purchase] .pdp-page .gallery-thumbnails {
+    order: 2;
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .brand-app[data-purchase] .pdp-page .gallery-thumbnails button {
+    width: 56px;
+    height: 62px;
+  }
+}
