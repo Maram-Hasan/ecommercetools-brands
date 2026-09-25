@@ -1,0 +1,33 @@
+/* Source SVGs and desktop dimensions: Spark universal-header logo-search-icons.
+   Mobile/footer widths are compact adaptations pending live references. */
+.brand-app .brand-wordmark {
+  display: block;
+  width: var(--wordmark-width);
+  max-width: 100%;
+  min-width: 0;
+  color: var(--logo);
+}
+
+.brand-app .brand-wordmark-artwork {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--wordmark-ratio);
+  background: currentColor;
+  mask: var(--wordmark-image) center / contain no-repeat;
+}
+
+.brand-app .footer-bottom .brand-wordmark {
+  width: 180px;
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .brand-app .brand-header .brand-wordmark {
+    width: min(var(--wordmark-width), 100%);
+  }
+}
+
+@media (max-width: 1023px) {
+  .brand-app .brand-header .brand-wordmark {
+    width: 210px;
+  }
+}
