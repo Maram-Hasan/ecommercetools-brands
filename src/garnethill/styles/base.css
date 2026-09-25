@@ -1,0 +1,12 @@
+.brand-app[data-brand='gh'] {
+  --line: #dedbd5;
+}
+
+.brand-app[data-brand='gh'] .page-width {
+  width: 100%;
+  max-width: 1440px;
+}
+
+.brand-app[data-brand='gh'] :is(h1, h2) {
+  font-weight: 300;
+}

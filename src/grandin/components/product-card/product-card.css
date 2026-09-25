@@ -1,0 +1,21 @@
+.brand-app[data-brand='gr'] .card-content h3 {
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.brand-app[data-brand='gr'] .product-badge {
+  background: #fff;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.brand-app[data-brand='gr'] .quick-shop {
+  background: var(--primary);
+  color: #fff;
+}
+
+@media (max-width: 480px) {
+  .brand-app[data-brand='gr'] .card-content h3 {
+    font-size: 13px;
+  }
+}

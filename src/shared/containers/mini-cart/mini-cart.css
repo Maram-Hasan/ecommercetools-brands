@@ -1,0 +1,20 @@
+.brand-app .mini-cart-bottom {
+  background: #fff;
+  padding-top: 25px;
+}
+
+.brand-app .mini-cart-bottom > p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 10px 0 20px;
+}
+
+.brand-app .mini-cart-bottom .button {
+  margin-bottom: 12px;
+}
+
+.brand-app .mini-cart-bottom > .text-button {
+  display: block;
+  margin: 12px auto;
+  font-size: 11px;
+}

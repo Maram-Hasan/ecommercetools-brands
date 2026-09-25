@@ -2,9 +2,9 @@ import { useState } from 'react';
 import type { ProductPage } from '../../../shared/domain/product';
 import { useResource } from '../useResource';
 import { ErrorState } from '../components';
-import { formatPrice } from '../../utils/money';
+import { formatPrice } from '../../shared/utils/money';
 import { Loading } from '../components';
-import { ProductImage } from '../../components/ProductImage';
+import { ProductImage } from '../../shared/components/product-image/index';
 import { useStorefront } from '../storefront';
 
 export function Catalog() {

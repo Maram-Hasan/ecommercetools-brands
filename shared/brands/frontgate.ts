@@ -89,7 +89,6 @@ export const fg: BrandConfig = {
     detail: 'Discover the latest collection',
   },
   home: {
-    layout: 'classic',
     eyebrow: 'THE ART OF LIVING WELL',
     headline: 'Make room for\n extraordinary.',
     description:
@@ -103,11 +102,9 @@ export const fg: BrandConfig = {
     description:
       'Beautifully considered spaces start with exceptional pieces. Discover timeless design, enduring materials and a seat for every moment.',
   },
-  gallery: 'vertical',
   minicart: 'wide',
   pdp: {
     purchase: 'tiles',
-    layout: 'frontgate',
     primary: '#252525',
     accent: '#252525',
     border: '#cccccc',

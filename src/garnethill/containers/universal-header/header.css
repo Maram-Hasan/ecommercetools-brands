@@ -1,0 +1,212 @@
+.brand-app[data-brand='gh'] .site-header {
+  background: var(--header-surface);
+}
+
+.brand-app[data-brand='gh'] .utility-bar {
+  max-width: none;
+  min-height: 30px;
+  padding: 0 32px;
+  justify-content: center;
+  background: #716d64;
+  color: white;
+}
+
+.brand-app[data-brand='gh'] .utility-bar > div {
+  width: 100%;
+  max-width: 1100px;
+  gap: 0;
+}
+
+.brand-app[data-brand='gh'] .utility-bar button {
+  flex: 1;
+  padding: 0 16px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.brand-app[data-brand='gh'] .utility-bar button + button {
+  border-left: 1px solid #bcb6ae;
+}
+
+.brand-app[data-brand='gh'] .brand-header {
+  max-width: 1440px;
+  grid-template-columns: minmax(210px, 0.9fr) minmax(240px, 1.7fr) minmax(
+      240px,
+      1fr
+    );
+  gap: 32px;
+  min-height: 86px;
+  padding: 15px 32px 10px;
+}
+
+.brand-app[data-brand='gh'] .site-search {
+  border: 1px solid #99948d;
+  border-radius: 0;
+  background: white;
+}
+
+.brand-app[data-brand='gh'] .site-search input {
+  height: 38px;
+  font-size: 13px;
+}
+
+.brand-app[data-brand='gh'] .site-search button {
+  background: white;
+  border-radius: 0;
+}
+
+.brand-app[data-brand='gh'] .header-actions {
+  gap: 10px;
+}
+
+.brand-app[data-brand='gh'] .header-actions button {
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  padding: 4px;
+}
+
+.brand-app[data-brand='gh'] .header-actions svg {
+  width: 22px;
+  height: 22px;
+}
+
+.brand-app[data-brand='gh'] .bag-count {
+  top: -4px;
+  right: 2px;
+  font-size: 9px;
+  min-width: 14px;
+  height: 14px;
+  background: #716b61;
+}
+
+.brand-app[data-brand='gh'] .production-navigation ul,
+.brand-app[data-brand='gh'] .production-subnavigation ul {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: clamp(22px, 4vw, 60px);
+}
+
+.brand-app[data-brand='gh'] .production-navigation a {
+  display: block;
+  font: 300 16px/1.4 var(--font-heading);
+  padding: 13px 0;
+  white-space: nowrap;
+}
+
+.brand-app[data-brand='gh'] .production-navigation a:hover,
+.brand-app[data-brand='gh'] .production-subnavigation a:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.brand-app[data-brand='gh'] .nav-emphasis {
+  color: #9c3939;
+}
+
+.brand-app[data-brand='gh'] .production-subnavigation ul {
+  gap: 28px;
+}
+
+.brand-app[data-brand='gh'] .production-subnavigation a {
+  display: block;
+  padding: 8px 0 13px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.brand-app[data-brand='gh'] .gh-announcement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 78px;
+  padding: 12px 20px;
+  color: white;
+  background: var(--promo);
+  text-align: center;
+}
+
+.brand-app[data-brand='gh'] .gh-announcement strong {
+  font: 300 26px/1.2 var(--font-heading);
+}
+
+.brand-app[data-brand='gh'] .gh-announcement span {
+  font-size: 11px;
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .brand-app[data-brand='gh'] .brand-header {
+    gap: 18px;
+    grid-template-columns: 195px minmax(220px, 1fr) 220px;
+    padding-inline: 24px;
+  }
+
+  .brand-app[data-brand='gh'] .production-navigation ul {
+    gap: 30px;
+  }
+
+  .brand-app[data-brand='gh'] .production-navigation a {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .brand-app[data-brand='gh'] .brand-header {
+    grid-template-columns: 42px minmax(0, 1fr) 44px;
+    gap: 6px;
+    padding: 14px 18px;
+  }
+
+  .brand-app[data-brand='gh'] .header-actions .gh-service-action,
+  .brand-app[data-brand='gh'] .cart-action > span:not(.bag-count) {
+    display: none;
+  }
+
+  .brand-app[data-brand='gh'] .site-search input {
+    font-size: 16px;
+    height: 40px;
+  }
+
+  .brand-app[data-brand='gh'] .production-subnavigation {
+    overflow-x: auto;
+  }
+
+  .brand-app[data-brand='gh'] .production-subnavigation ul {
+    width: max-content;
+    min-width: 100%;
+    gap: 24px;
+  }
+
+  .brand-app[data-brand='gh'] .production-subnavigation a {
+    padding-block: 6px 12px;
+    font-size: 9px;
+  }
+
+  .brand-app[data-brand='gh'] .gh-announcement {
+    min-height: 68px;
+  }
+
+  .brand-app[data-brand='gh'] .gh-announcement strong {
+    font-size: 23px;
+  }
+
+  .brand-app[data-brand='gh'] .navigation-drawer .production-navigation ul {
+    display: block;
+    padding: 16px 0;
+  }
+
+  .brand-app[data-brand='gh'] .navigation-drawer .production-navigation a {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 18px;
+    white-space: normal;
+  }
+}

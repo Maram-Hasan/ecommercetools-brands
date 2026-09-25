@@ -771,6 +771,92 @@ test('catalog loads every API page before searching and filtering', async ({
   expect(offsets).toContain(1);
 });
 
+test('brand switch during a pending add cannot open or replace the next Store bag', async ({
+  page,
+}) => {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/api/cart/items?*', async (route) => {
+    await held;
+    await route.fulfill({
+      json: { quantity: 7, total: money(700), items: [] },
+    });
+  });
+  await page.goto('/gr/product/' + id(2));
+  await page.getByRole('button', { name: 'ADD TO CART', exact: true }).click();
+  await expect(page.locator('.add-to-cart')).toBeDisabled();
+  await page
+    .getByRole('navigation', { name: 'Choose brand' })
+    .getByRole('link', { name: 'Garnet Hill', exact: true })
+    .click();
+  await expect(page.locator('.brand-app')).toHaveAttribute('data-brand', 'gh');
+  const response = page.waitForResponse((r) => r.request().method() === 'POST');
+  release();
+  await response;
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(
+    page.getByRole('button', {
+      name: 'Open shopping bag, 0 items',
+      exact: true,
+    }),
+  ).toBeVisible();
+});
+
+test('brand layouts fit narrow phones and both sides of the navigation and PDP breakpoints', async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== 'desktop',
+    'Explicit viewport sweep runs once',
+  );
+  test.setTimeout(120_000);
+  for (const brand of ['fg', 'gr', 'gh'] as const) {
+    await page.goto(
+      `/${brand}/product/${id(brand === 'fg' ? 1 : brand === 'gr' ? 2 : 5)}`,
+    );
+    await expect(page.locator('.product-info-panel h1')).toBeVisible();
+    for (const width of [320, 700, 701, 1023, 1024]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const geometry = await page.evaluate(() => {
+        const header = document
+          .querySelector('.brand-header')!
+          .getBoundingClientRect();
+        const gallery = document
+          .querySelector('.product-gallery')!
+          .getBoundingClientRect();
+        const info = document
+          .querySelector('.product-info-panel')!
+          .getBoundingClientRect();
+        return {
+          overflow: document.documentElement.scrollWidth - innerWidth,
+          header: header.width,
+          gallery: {
+            x: gallery.x,
+            y: gallery.y,
+            right: gallery.right,
+            bottom: gallery.bottom,
+          },
+          info: { x: info.x, y: info.y, right: info.right },
+          width: innerWidth,
+        };
+      });
+      expect(geometry.overflow, `${brand} at ${width}px`).toBeLessThanOrEqual(
+        1,
+      );
+      expect(
+        geometry.info.right,
+        `${brand} purchase controls at ${width}px`,
+      ).toBeLessThanOrEqual(width + 1);
+      if (width <= 700)
+        expect(geometry.info.y).toBeGreaterThanOrEqual(geometry.gallery.bottom);
+      else
+        expect(geometry.info.x).toBeGreaterThanOrEqual(geometry.gallery.right);
+    }
+  }
+});
+
 test('a stale cart read cannot overwrite a completed add', async ({ page }) => {
   let release!: () => void;
   const held = new Promise<void>((resolve) => {
@@ -856,7 +942,9 @@ test('decoded category slugs select the matching collection', async ({
   await expect(page.locator('.shop-product-card')).toHaveCount(2);
 });
 
-test('legacy demo remains isolated from storefront brands', async ({ page }) => {
+test('legacy demo remains isolated from storefront brands', async ({
+  page,
+}) => {
   await page.route('**/api/**', (route) => {
     const url = new URL(route.request().url());
     if (url.searchParams.get('store') !== 'b2c-retail-store')

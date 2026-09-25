@@ -1,0 +1,20 @@
+.brand-app[data-brand='gh'] .product-heading-row h1 {
+  font: 300 28px/1.25 var(--font-heading);
+}
+
+.brand-app[data-brand='gh'] .tile-color-option {
+  border-radius: 0;
+}
+
+.brand-app[data-brand='gh'] .tile-color-chip {
+  border-radius: 0;
+}
+
+.brand-app[data-brand='gh'] .tile-product-info .shop-price {
+  font-size: 18px;
+  border-color: var(--line);
+}
+
+.brand-app[data-brand='gh'] .product-total output {
+  font-size: 18px;
+}

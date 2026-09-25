@@ -89,7 +89,6 @@ export const gr: BrandConfig = {
     detail: 'Find something you love',
   },
   home: {
-    layout: 'classic',
     eyebrow: 'A FRESH TAKE ON HOME',
     headline: 'A little unexpected.\nEntirely you.',
     description:
@@ -103,11 +102,9 @@ export const gr: BrandConfig = {
     description:
       'Your home. Your point of view. Find furniture that’s as full of personality as you are.',
   },
-  gallery: 'vertical',
   minicart: 'compact',
   pdp: {
     purchase: 'swatches',
-    layout: 'production',
     primary: '#193c56',
     accent: '#d77550',
     border: '#d8d5d0',

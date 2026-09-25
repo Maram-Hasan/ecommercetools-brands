@@ -4,8 +4,11 @@ import type { ProductProjection } from '@commercetools/platform-sdk';
 import { localize } from '../server/commercetools/mappers/values.js';
 import { money } from '../server/commercetools/mappers/values.js';
 import { productView } from '../server/commercetools/mappers/product.mapper.js';
-import { normalizeProduct } from '../src/mappers/product.mapper.js';
-import { galleryImages, categoryTrail } from '../src/domain/product-options.js';
+import { normalizeProduct } from '../src/shared/store/catalog/parsers.js';
+import {
+  galleryImages,
+  categoryTrail,
+} from '../src/shared/models/product-options.js';
 
 test('localized names fall back to the same language, then another available translation', () => {
   assert.equal(localize({ 'en-GB': 'Chair', de: 'Stuhl' }, 'en-US'), 'Chair');

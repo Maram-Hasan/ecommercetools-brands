@@ -1,0 +1,202 @@
+.brand-app[data-brand='gr'] .product-info-panel h1 {
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.brand-app[data-brand='gr'] .pdp-page {
+  max-width: 1440px;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .breadcrumbs {
+  padding-block: 12px;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .breadcrumbs > span {
+  gap: 8px;
+}
+
+.brand-app[data-brand='gr'] .pdp-layout {
+  gap: 26px;
+  padding-top: 4px;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .product-gallery {
+  gap: 12px;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .gallery-thumbnails {
+  gap: 10px;
+  max-height: 450px;
+  padding: 2px;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .gallery-thumbnails button {
+  border: 1px solid var(--pdp-border);
+}
+
+.brand-app[data-brand='gr'] .pdp-page .gallery-thumbnails button.selected {
+  border: 1px solid var(--pdp-accent);
+  outline: 1px solid var(--pdp-accent);
+}
+
+.brand-app[data-brand='gr'] .pdp-page .gallery-image {
+  min-height: 420px;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .gallery-main > p {
+  padding: 5px;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .product-info-panel {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  min-width: 0;
+}
+
+.brand-app[data-brand='gr'] .product-heading-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.brand-app[data-brand='gr'] .product-heading-row h1 {
+  font: 500 27px/1.2 var(--font-body);
+  margin: 0;
+}
+
+.brand-app[data-brand='gr'] .product-heading-row .sku {
+  color: var(--ink);
+  flex-shrink: 0;
+  max-width: 45%;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .product-info-panel .shop-price {
+  font-size: 24px;
+  font-weight: 400;
+  padding: 0;
+  margin: 26px 0;
+}
+
+.brand-app[data-brand='gr'] .variant-availability {
+  margin-top: 16px;
+}
+
+.brand-app[data-brand='gr'] .product-purchase {
+  margin-top: 30px;
+}
+
+.brand-app[data-brand='gr'] .quantity-total-row {
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.brand-app[data-brand='gr'] .product-purchase .quantity-selector {
+  height: 40px;
+}
+
+.brand-app[data-brand='gr'] .product-purchase .quantity-selector button {
+  width: 36px;
+  background: var(--pdp-surface);
+}
+
+.brand-app[data-brand='gr'] .product-purchase .quantity-selector output {
+  width: 35px;
+}
+
+.brand-app[data-brand='gr'] .product-total {
+  text-align: right;
+  font-size: 12px;
+}
+
+.brand-app[data-brand='gr'] .product-total output {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.brand-app[data-brand='gr'] .button.add-to-cart {
+  height: 48px;
+  border-radius: 0;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+.brand-app[data-brand='gr'] .pdp-page .product-details-sections {
+  margin-block: 25px 45px;
+}
+
+@media (min-width: 701px) {
+  .brand-app[data-brand='gr'] .pdp-page {
+    padding-inline: 24px;
+  }
+
+  .brand-app[data-brand='gr'] .pdp-layout {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+
+  .brand-app[data-brand='gr'] .pdp-page .product-gallery {
+    grid-template-columns: 66px minmax(0, 1fr);
+  }
+
+  .brand-app[data-brand='gr'] .pdp-page .gallery-thumbnails button {
+    width: 60px;
+    height: 70px;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 1023px) {
+  .brand-app[data-brand='gr'] .pdp-page .gallery-image {
+    min-height: 320px;
+  }
+  .brand-app[data-brand='gr'] .pdp-layout {
+    gap: 18px;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+  .brand-app[data-brand='gr'] .product-heading-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .brand-app[data-brand='gr'] .product-heading-row .sku {
+    text-align: left;
+    max-width: 100%;
+  }
+  .brand-app[data-brand='gr'] .product-heading-row h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 700px) {
+  .brand-app[data-brand='gr'] .pdp-page .breadcrumbs {
+    padding-block: 10px;
+  }
+  .brand-app[data-brand='gr'] .pdp-layout {
+    gap: 20px;
+  }
+  .brand-app[data-brand='gr'] .pdp-page .product-gallery {
+    gap: 8px;
+  }
+  .brand-app[data-brand='gr'] .pdp-page .gallery-image {
+    min-height: 0;
+  }
+  .brand-app[data-brand='gr'] .pdp-page .gallery-thumbnails {
+    padding: 3px;
+  }
+  .brand-app[data-brand='gr'] .product-heading-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .brand-app[data-brand='gr'] .product-heading-row h1 {
+    font-size: 26px;
+  }
+  .brand-app[data-brand='gr'] .product-heading-row .sku {
+    max-width: 100%;
+    text-align: left;
+  }
+  .brand-app[data-brand='gr'] .pdp-page .product-info-panel .shop-price {
+    margin: 20px 0;
+  }
+  .brand-app[data-brand='gr'] .product-purchase {
+    margin-top: 24px;
+  }
+}

@@ -168,6 +168,8 @@ try {
             '.production-navigation',
             '.page-width',
             '.gallery-image',
+            '.pdp-layout',
+            '.product-gallery',
             '.product-info-panel',
             '.product-heading-row h1',
             '.add-to-cart',
@@ -186,11 +188,55 @@ try {
               height,
               font: css.font,
               color: css.color,
+              gridTemplateColumns: css.gridTemplateColumns,
+              paddingInline: css.paddingInline,
             };
+          }
+          // Record active matching rules alongside computed layout, so a mismatch
+          // can be traced to its owner rather than patched with another override.
+          const layoutRules = [];
+          function inspectRules(rules, source) {
+            for (const rule of rules) {
+              if (rule instanceof CSSMediaRule) {
+                if (matchMedia(rule.conditionText).matches)
+                  inspectRules(rule.cssRules, source);
+              } else if (rule instanceof CSSImportRule && rule.styleSheet) {
+                inspectRules(rule.styleSheet.cssRules, rule.href);
+              } else if (rule instanceof CSSStyleRule) {
+                for (const selector of [
+                  '.pdp-layout',
+                  '.product-gallery',
+                  '.brand-header',
+                ]) {
+                  const element = document.querySelector(selector);
+                  if (element?.matches(rule.selectorText)) {
+                    layoutRules.push({
+                      element: selector,
+                      source,
+                      selector: rule.selectorText,
+                      declarations: rule.style.cssText,
+                    });
+                  }
+                }
+              }
+            }
+          }
+          for (const sheet of document.styleSheets) {
+            try {
+              inspectRules(
+                sheet.cssRules,
+                sheet.href ||
+                  sheet.ownerNode?.getAttribute('data-vite-dev-id') ||
+                  'inline',
+              );
+            } catch {
+              /* Cross-origin sheets cannot be inspected by the browser. */
+            }
           }
           return {
             overflow: document.documentElement.scrollWidth > innerWidth + 1,
             elements,
+            layoutRules,
             brokenImages: [...document.images]
               .filter((img) => !img.complete || !img.naturalWidth)
               .map((img) => img.src),

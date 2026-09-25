@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'Open Sans';
+  src: url('/fonts/open-sans.woff2') format('woff2');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/frank-ruhl-libre.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}

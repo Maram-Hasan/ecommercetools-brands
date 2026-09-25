@@ -1,0 +1,61 @@
+.brand-app .order-summary {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 28px;
+  align-self: start;
+}
+
+.brand-app .order-summary h2 {
+  font-size: 26px;
+  margin-bottom: 25px;
+}
+
+.brand-app .summary-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 14px 0;
+  font-size: 12px;
+}
+
+.brand-app .summary-line > span:last-child {
+  text-align: right;
+}
+
+.brand-app .summary-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 1px solid #cbcec8;
+  padding-top: 20px;
+  margin-top: 22px;
+  font-size: 13px;
+}
+
+.brand-app .summary-total strong {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.brand-app .summary-disclaimer {
+  color: var(--muted);
+  font-size: 10px;
+  margin: 14px 0 25px;
+}
+
+.brand-app .summary-service {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 11px;
+  margin-top: 24px;
+  padding-top: 21px;
+  border-top: 1px solid #d8dad4;
+  color: var(--muted);
+}
+
+@media (max-width: 800px) {
+  .brand-app .order-summary {
+    width: 100%;
+  }
+}

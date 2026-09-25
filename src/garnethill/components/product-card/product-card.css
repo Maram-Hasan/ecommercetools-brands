@@ -1,0 +1,17 @@
+.brand-app[data-brand='gh'] .card-visual {
+  aspect-ratio: 3/4;
+  background: var(--wash);
+}
+
+.brand-app[data-brand='gh'] .card-content h3 {
+  font: 400 15px/1.4 var(--font-heading);
+}
+
+.brand-app[data-brand='gh'] .card-content {
+  text-align: center;
+}
+
+.brand-app[data-brand='gh'] .card-content .shop-price {
+  justify-content: center;
+  font-size: 13px;
+}

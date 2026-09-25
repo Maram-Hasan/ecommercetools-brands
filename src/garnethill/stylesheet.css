@@ -1,0 +1,8 @@
+@import './styles/base.css';
+@import './containers/universal-header/header.css';
+@import './containers/home/home.css';
+@import './components/product-card/product-card.css';
+@import './containers/product-list/catalog.css';
+@import './containers/universal-pdp/product.css';
+@import './containers/universal-footer/footer.css';
+@import './styles/fonts.css';

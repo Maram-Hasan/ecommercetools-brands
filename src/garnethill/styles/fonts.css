@@ -1,0 +1,8 @@
+@font-face {
+  font-family: 'Kepler Std';
+
+  src: url('/fonts/kepler-light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}

@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.server.json",
     "build": "npm run typecheck && vite build",
     "start": "tsx server/index.ts --production",
-    "test": "tsx --test tests/api.test.ts tests/mappers.test.ts tests/catalog.test.ts tests/domain.test.ts",
+    "test": "tsx --test tests/api.test.ts tests/mappers.test.ts tests/catalog.test.ts tests/domain.test.ts tests/architecture.test.ts",
     "test:browser": "playwright test",
     "format:storefront": "prettier --write src shared server tests scripts/*.mjs playwright.config.ts"
   },

@@ -114,7 +114,6 @@ export const gh: BrandConfig = {
     detail: 'Explore the Garnet Hill collection',
   },
   home: {
-    layout: 'editorial',
     eyebrow: 'GARNET HILL',
     headline: 'Comfort,\nbeautifully considered.',
     description:
@@ -133,11 +132,9 @@ export const gh: BrandConfig = {
     title: 'All Products',
     description: 'Discover the collection for your home and for you.',
   },
-  gallery: 'vertical',
   minicart: 'compact',
   pdp: {
     purchase: 'tiles',
-    layout: 'garnet-hill',
     addLabel: 'ADD TO BAG',
     primary: '#716b61',
     accent: '#716b61',

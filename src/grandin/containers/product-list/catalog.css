@@ -1,0 +1,14 @@
+.brand-app[data-brand='gr'] .category-intro {
+  background: #fff;
+}
+
+.brand-app[data-brand='gr'] .category-intro h1 {
+  font-weight: 400;
+  font-size: 32px;
+}
+
+@media (max-width: 800px) {
+  .brand-app[data-brand='gr'] .category-intro h1 {
+    font-size: 27px;
+  }
+}

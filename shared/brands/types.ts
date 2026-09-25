@@ -42,7 +42,6 @@ export interface BrandConfig {
   };
   promo: { headline: string; detail: string };
   home: {
-    layout: 'classic' | 'editorial';
     eyebrow: string;
     headline: string;
     description: string;
@@ -52,11 +51,9 @@ export interface BrandConfig {
     preferredCategories?: string[];
   };
   catalog: { title: string; description: string };
-  gallery: 'vertical' | 'horizontal';
   minicart: 'wide' | 'compact';
   pdp: {
     purchase: 'swatches' | 'tiles';
-    layout: 'production' | 'frontgate' | 'garnet-hill';
     addLabel?: string;
     primary: string;
     accent: string;

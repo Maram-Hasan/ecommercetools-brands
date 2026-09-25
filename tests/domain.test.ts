@@ -1,12 +1,12 @@
-import { visualOption } from '../src/domain/product-options.js';
+import { visualOption } from '../src/shared/models/product-options.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { ProductProjection, Cart } from '@commercetools/platform-sdk';
 import { productView } from '../server/commercetools/mappers/product.mapper.js';
 import { cartView } from '../server/commercetools/mappers/cart.mapper.js';
-import { normalizeProduct } from '../src/mappers/product.mapper.js';
-import { normalizeCart } from '../src/mappers/cart.mapper.js';
-import { parseRoute } from '../src/app/routes.js';
+import { normalizeProduct } from '../src/shared/store/catalog/parsers.js';
+import { normalizeCart } from '../src/shared/store/cart/parsers.js';
+import { parseRoute } from '../src/shared/containers/app/routes.js';
 import { brands, resolveBrand } from '../shared/brands/index.js';
 
 test('product identity preserves independent product, storefront and variant identifiers', () => {

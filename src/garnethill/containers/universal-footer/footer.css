@@ -1,0 +1,97 @@
+.brand-app[data-brand='gh'] .site-footer {
+  background: #f5f3ef;
+}
+
+.brand-app[data-brand='gh'] .service-ribbon {
+  display: none;
+}
+
+.brand-app[data-brand='gh'] .footer-highlights {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 40px 24px;
+  border-block: 1px solid var(--line);
+  background: white;
+}
+
+.brand-app[data-brand='gh'] .footer-highlights button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: none;
+  padding: 12px;
+}
+
+.brand-app[data-brand='gh'] .footer-highlights button + button {
+  border-left: 1px solid var(--line);
+}
+
+.brand-app[data-brand='gh'] .footer-highlights strong {
+  font: 400 23px/1.2 var(--font-heading);
+}
+
+.brand-app[data-brand='gh'] .footer-highlights span {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.brand-app[data-brand='gh'] .footer-main {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 1120px;
+  padding-top: 45px;
+}
+
+.brand-app[data-brand='gh'] .newsletter {
+  grid-column: 1/-1;
+  width: 100%;
+  max-width: 550px;
+  text-align: center;
+  margin: 0 auto 20px;
+}
+
+.brand-app[data-brand='gh'] .newsletter h2 {
+  font-size: 30px;
+}
+
+.brand-app[data-brand='gh'] .footer-column h3 {
+  font: 300 20px/1.3 var(--font-heading);
+}
+
+@media (max-width: 1023px) {
+  .brand-app[data-brand='gh'] .footer-main {
+    grid-template-columns: 1fr;
+    padding-top: 32px;
+  }
+
+  .brand-app[data-brand='gh'] .footer-highlights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 0;
+  }
+
+  .brand-app[data-brand='gh'] .footer-highlights button:nth-child(3) {
+    border-left: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .brand-app[data-brand='gh'] .footer-highlights {
+    padding: 22px 10px;
+  }
+
+  .brand-app[data-brand='gh'] .footer-highlights strong {
+    font-size: 20px;
+  }
+
+  .brand-app[data-brand='gh'] .newsletter h2 {
+    font-size: 27px;
+  }
+
+  .brand-app[data-brand='gh'] .footer-bottom {
+    gap: 20px;
+  }
+}

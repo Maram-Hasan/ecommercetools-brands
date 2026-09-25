@@ -1,0 +1,29 @@
+.brand-app[data-brand='gh'] .category-intro {
+  display: block;
+  text-align: center;
+  padding: 28px 16px 36px;
+  background: white;
+}
+
+.brand-app[data-brand='gh'] .category-intro > img {
+  display: none;
+}
+
+.brand-app[data-brand='gh'] .category-intro h1 {
+  font-size: 36px;
+}
+
+.brand-app[data-brand='gh'] .category-intro p {
+  margin: 12px auto 0;
+  max-width: 600px;
+}
+
+.brand-app[data-brand='gh'] .catalog-layout {
+  padding-top: 20px;
+}
+
+@media (max-width: 700px) {
+  .brand-app[data-brand='gh'] .category-intro h1 {
+    font-size: 30px;
+  }
+}
