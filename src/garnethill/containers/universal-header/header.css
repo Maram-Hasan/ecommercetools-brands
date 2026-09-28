@@ -59,7 +59,7 @@
   gap: 16px;
 }
 
-.brand-app[data-brand='gh'] .header-actions button {
+.brand-app[data-brand='gh'] .header-actions :is(button, .cart-action) {
   flex-direction: column;
   gap: 4px;
   font-size: 10px;

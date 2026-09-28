@@ -4,6 +4,7 @@ import type { ProductInfoProps } from '../usePurchase';
 import { ProductImage } from '../../../components/product-image/index';
 import { InlineError } from '../../../components/primitives/index';
 import { Price } from '../../../components/price';
+import { ProductBadges } from '../../../components/product-badges';
 import { ProductPurchaseControls } from './ProductPurchaseControls';
 
 function sizeOf(variant: ShopVariant) {
@@ -21,6 +22,7 @@ function optionLabel(variant: ShopVariant) {
 
 export function TileProductInfo({
   product,
+  mobileGallery,
   onSelect,
   variant,
   quantity,
@@ -46,7 +48,9 @@ export function TileProductInfo({
         )}
         <h1>{product.name}</h1>
       </div>
+      <ProductBadges badges={product.badges} />
       {variant && <Price variant={variant} />}
+      {mobileGallery}
       {variant && (
         <fieldset className="tile-options" disabled={busy}>
           <legend>

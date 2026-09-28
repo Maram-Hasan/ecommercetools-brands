@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ProductInfoProps } from '../../../shared/containers/universal-pdp/usePurchase';
 import { Price } from '../../../shared/components/price';
+import { ProductBadges } from '../../../shared/components/product-badges';
 import {
   InlineError,
   QuantitySelector,
@@ -11,6 +12,7 @@ import { formatPrice } from '../../../shared/utils/money';
 
 export function GarnetHillProductInfo({
   product,
+  mobileGallery,
   variant,
   onSelect,
   quantity,
@@ -39,11 +41,7 @@ export function GarnetHillProductInfo({
               : null}
         </p>
       </div>
-      {product.badge && (
-        <div className="gh-product-badges">
-          <span>{product.badge}</span>
-        </div>
-      )}
+      <ProductBadges badges={product.badges} className="gh-product-badges" />
       {!!product.rating && (
         <div
           className="gh-review-summary"
@@ -57,6 +55,7 @@ export function GarnetHillProductInfo({
         </div>
       )}
       {variant && <Price variant={variant} />}
+      {mobileGallery}
       {variant && (
         <ProductOptions
           variants={product.variants}

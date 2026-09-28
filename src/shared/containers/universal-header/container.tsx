@@ -23,7 +23,7 @@ function UtilityBar({ onInfo }: { onInfo: (title: string) => void }) {
 
 export interface HeaderProps {
   quantity: number;
-  openCart: () => void;
+  openCart: (anchor?: HTMLElement) => void;
 }
 
 interface HeaderSlots {
@@ -72,10 +72,11 @@ export function SiteHeader({
               <Icon name="user" size={28} />
               {accountLabel && <span>{accountLabel}</span>}
             </button>
-            <button
-              onClick={openCart}
+            <Link
+              href={`${brand.route}/cart`}
               onPointerEnter={(event) => {
-                if (event.pointerType === 'mouse') openCart();
+                if (event.pointerType === 'mouse')
+                  openCart(event.currentTarget);
               }}
               className="cart-action"
               aria-label={`Open shopping bag, ${quantity} items`}
@@ -83,7 +84,7 @@ export function SiteHeader({
               <Icon name={cartIcon} size={29} />
               {cartLabel && <span>{cartLabel}</span>}
               <span className="bag-count">{quantity}</span>
-            </button>
+            </Link>
           </div>
         </div>
         <div className="desktop-navigation">

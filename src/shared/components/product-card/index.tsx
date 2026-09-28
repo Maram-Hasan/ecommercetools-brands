@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useBrand } from '../../store/brand/context';
 import { Link } from '../../containers/app/router';
 import { ProductImage } from '../product-image/index';
+import { ProductBadges } from '../product-badges';
 import type { ShopProduct } from '../../models/product';
 import { Price } from '../price';
 import { Modal } from '../primitives/index';
@@ -63,8 +64,8 @@ export function ProductCard({ product }: { product: ShopProduct }) {
         <Link href={href} tabIndex={-1} aria-hidden="true">
           <ProductImage src={variant?.images[0]} name={product.name} />
         </Link>
-        {product.badge && !detailedCard && (
-          <span className="product-badge">{product.badge}</span>
+        {!detailedCard && (
+          <ProductBadges badges={product.badges} className="card-badges" />
         )}
         {brand.features.quickShop && (
           <button className="quick-shop" onClick={() => setQuick(true)}>
@@ -72,8 +73,8 @@ export function ProductCard({ product }: { product: ShopProduct }) {
           </button>
         )}
       </div>
-      {detailedCard && product.badge && (
-        <span className="product-badge">{product.badge}</span>
+      {detailedCard && (
+        <ProductBadges badges={product.badges} className="card-badges" />
       )}
       <div className="card-content">
         {detailedCard && cardSwatches}

@@ -1,3 +1,12 @@
+.brand-app .shop-modal.drawer.mini-cart-preview {
+  position: fixed;
+  inset: var(--cart-preview-top) 16px auto auto;
+  width: min(535px, calc(100% - 32px));
+  height: auto;
+  max-height: calc(100dvh - var(--cart-preview-top) - 16px);
+  margin: 0;
+  overflow-y: auto;
+}
 .brand-app .shop-modal.drawer .modal-inner {
   display: flex;
   flex-direction: column;

@@ -163,16 +163,31 @@ export function Modal({
 
 export function Breadcrumbs({
   items,
+  mobileParent = false,
 }: {
   items: { label: string; href?: string }[];
+  mobileParent?: boolean;
 }) {
   const brand = useBrand();
   const separator = brand.key === 'gr' ? '>' : '/';
+  const mobileIndex = mobileParent
+    ? items.reduce((last, item, index) => (item.href ? index : last), -1)
+    : items.length - 1;
   return (
     <nav className="breadcrumbs" aria-label="Breadcrumb">
-      <Link href={brand.route}>Home</Link>
+      <Link
+        href={brand.route}
+        className={mobileIndex === -1 ? 'breadcrumb-mobile-current' : undefined}
+      >
+        Home
+      </Link>
       {items.map((item, index) => (
-        <span key={index}>
+        <span
+          key={index}
+          className={
+            index === mobileIndex ? 'breadcrumb-mobile-current' : undefined
+          }
+        >
           <span aria-hidden="true">{separator}</span>
           {item.href ? (
             <Link href={item.href}>{item.label}</Link>

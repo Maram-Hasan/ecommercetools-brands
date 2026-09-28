@@ -21,6 +21,10 @@
 }
 
 @media (max-width: 700px) {
+  .brand-app[data-brand='gh'] .breadcrumbs > :not(.breadcrumb-mobile-current),
+  .brand-app[data-brand='gh'] .breadcrumb-mobile-current > [aria-hidden] {
+    display: none;
+  }
   .brand-app[data-brand='gh'] .breadcrumbs {
     padding-block: 10px 13px;
     font-size: 12px;

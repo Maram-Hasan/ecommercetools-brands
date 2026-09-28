@@ -1,5 +1,6 @@
 import type { Money } from '../../../shared/domain/money.js';
 import type { ProductCategory } from '../../../shared/domain/category.js';
+import type { Product } from '../../../shared/domain/product.js';
 export interface ShopVariant {
   id: number;
   sku?: string;
@@ -15,6 +16,7 @@ export interface ShopVariant {
   swatchImage?: string;
 }
 export interface ShopProduct {
+  catalogSort?: Product['catalogSort'];
   id: string;
   slug: string;
   key?: string;
@@ -23,7 +25,7 @@ export interface ShopProduct {
   description: string;
   category: string;
   categories: ProductCategory[];
-  badge?: string;
+  badges?: string[];
   rating?: number;
   reviewCount?: number;
   variants: ShopVariant[];

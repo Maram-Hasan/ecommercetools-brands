@@ -1,0 +1,47 @@
+/* GR page geometry with Frontgate content and theme inherited unchanged. */
+.brand-app[data-brand='fg'] .home-hero {
+  height: min(620px, calc(100vw * 0.43));
+  min-height: 440px;
+}
+
+.brand-app[data-brand='fg'] .hero-photograph {
+  left: auto;
+  right: 0;
+}
+
+.brand-app[data-brand='fg'] .home-hero .hero-copy {
+  margin-left: 0;
+  margin-right: auto;
+  min-height: 440px;
+}
+
+.brand-app[data-brand='fg'] .hero-copy h1 {
+  font-size: clamp(36px, 3.8vw, 56px);
+}
+
+@media (max-width: 800px) {
+  .brand-app[data-brand='fg'] .home-hero {
+    height: auto;
+    min-height: 0;
+  }
+
+  .brand-app[data-brand='fg'] .home-hero .hero-copy {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    height: auto;
+    margin: 0;
+    padding: 26px 20px 32px;
+  }
+
+  .brand-app[data-brand='fg'] .hero-copy h1 {
+    font-size: 32px;
+    margin: 12px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-app[data-brand='fg'] .hero-copy h1 {
+    font-size: 30px;
+  }
+}

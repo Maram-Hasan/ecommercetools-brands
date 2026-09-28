@@ -11,6 +11,8 @@ export interface Variant {
 }
 
 export interface Product {
+  badges?: string[];
+  catalogSort?: { createdAt?: string; rating?: number; reviewCount?: number };
   id: string;
   key?: string;
   slug: string;

@@ -1,10 +1,12 @@
 import type { ProductInfoProps } from '../usePurchase';
 import { InlineError } from '../../../components/primitives/index';
 import { Price } from '../../../components/price';
+import { ProductBadges } from '../../../components/product-badges';
 import { ColorSwatchSelector } from './ColorSwatchSelector';
 import { ProductPurchaseControls } from './ProductPurchaseControls';
 export function SwatchProductInfo({
   product,
+  mobileGallery,
   onSelect,
   variant,
   quantity,
@@ -23,7 +25,9 @@ export function SwatchProductInfo({
           variant?.sku && <p className="sku">SKU: {variant.sku}</p>
         )}
       </div>
+      <ProductBadges badges={product.badges} />
       {variant && <Price variant={variant} />}
+      {mobileGallery}
       {variant && (
         <ColorSwatchSelector
           variants={product.variants}

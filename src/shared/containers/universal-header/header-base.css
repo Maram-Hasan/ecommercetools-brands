@@ -84,7 +84,7 @@
   justify-content: flex-end;
   gap: var(--space-lg);
 }
-.brand-app .header-actions button {
+.brand-app .header-actions :is(button, .cart-action) {
   display: flex;
   align-items: center;
   gap: var(--space-sm);

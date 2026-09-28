@@ -7,7 +7,28 @@ export function productView(
   locale: string,
   supplyChannelId?: string,
 ): Product {
+  const badgeValue = (
+    product.attributes?.find(
+      (attribute) => attribute.name.toLowerCase() === 'badge',
+    ) ??
+    product.masterVariant.attributes?.find(
+      (attribute) => attribute.name.toLowerCase() === 'badge',
+    )
+  )?.value;
+  const badges = [
+    ...new Set(
+      (Array.isArray(badgeValue) ? badgeValue : [badgeValue])
+        .map((value) => attributeText(value, locale).trim())
+        .filter(Boolean),
+    ),
+  ];
   return {
+    badges,
+    catalogSort: {
+      createdAt: product.createdAt,
+      rating: product.reviewRatingStatistics?.averageRating,
+      reviewCount: product.reviewRatingStatistics?.count,
+    },
     id: product.id,
     key: product.key,
     slug: localize(product.slug, locale),
@@ -52,6 +73,7 @@ export function productView(
         ? { originalPrice: money(variant.price.value) }
         : {}),
       attributes: (variant.attributes ?? []).flatMap((attribute) => {
+        if (attribute.name.toLowerCase() === 'badge') return [];
         const value = attributeText(attribute.value, locale);
         return value ? [{ name: attribute.name, value }] : [];
       }),

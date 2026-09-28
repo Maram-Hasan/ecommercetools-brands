@@ -1,0 +1,301 @@
+.brand-app .compact-mobile-filters {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .brand-app .compact-category-page .category-intro h1 {
+    font-size: 20px;
+  }
+
+  .brand-app .compact-category-page .catalog-results .shop-grid {
+    column-gap: 16px;
+  }
+
+  .brand-app .category-page .compact-catalog-toolbar {
+    display: block;
+    min-height: 0;
+    padding: 0;
+    margin-bottom: 28px;
+    border: 0;
+  }
+
+  .brand-app
+    .category-page
+    .compact-catalog-toolbar
+    > :not(.compact-mobile-filters) {
+    display: none;
+  }
+
+  .brand-app .compact-mobile-filters {
+    display: block;
+    width: 100%;
+    color: var(--ink);
+    font-size: 16px;
+  }
+
+  .brand-app .compact-mobile-filters .compact-filter-trigger {
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 12px;
+    gap: 6px;
+    border-color: var(--header-border);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .brand-app .compact-mobile-filter-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .brand-app .compact-mobile-filter-status > span {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .brand-app .compact-catalog-toolbar .compact-mobile-filters label {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 32px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    cursor: pointer;
+  }
+
+  .brand-app .compact-stock-toggle {
+    position: relative;
+  }
+
+  .brand-app
+    .compact-catalog-toolbar
+    .compact-mobile-filter-status
+    .compact-stock-toggle {
+    font-size: 14px;
+  }
+
+  .brand-app .compact-stock-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 48px;
+    height: 24px;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .brand-app .compact-stock-toggle > span {
+    position: relative;
+    flex: 0 0 48px;
+    height: 24px;
+    border: 1px solid var(--ink);
+    border-radius: 24px;
+    pointer-events: none;
+  }
+
+  .brand-app .compact-stock-toggle > span::after {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 18px;
+    height: 18px;
+    background: #929292;
+    border-radius: 50%;
+    transition: transform 160ms ease;
+  }
+
+  .brand-app .compact-stock-toggle input:checked + span::after {
+    transform: translateX(24px);
+    background: var(--primary);
+  }
+
+  .brand-app .compact-stock-toggle input:focus-visible + span {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  .brand-app .compact-filter-dialog {
+    position: fixed;
+    inset: 64px 0 0;
+    width: 100%;
+    max-width: none;
+    height: calc(100dvh - 64px);
+    max-height: none;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: white;
+    color: var(--ink);
+    overflow: hidden;
+  }
+
+  .brand-app .compact-filter-dialog::backdrop {
+    background: #000a;
+  }
+
+  .brand-app .compact-filter-content {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: 100%;
+  }
+
+  .brand-app .compact-filter-close {
+    position: absolute;
+    top: 3px;
+    right: 8px;
+  }
+
+  .brand-app .compact-filter-close svg {
+    stroke-width: 3;
+  }
+
+  .brand-app .compact-filter-scroll {
+    padding: 6px 16px 32px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .brand-app .compact-filter-stock {
+    margin-bottom: 20px;
+    padding-right: 40px;
+  }
+
+  .brand-app .compact-filter-stock small {
+    display: block;
+    margin-top: 8px;
+    font-size: 11px;
+  }
+
+  .brand-app .compact-filter-sort {
+    min-width: 0;
+    margin: 0;
+    padding: 0 0 8px;
+    border: 0;
+    border-bottom: 1px solid #777;
+  }
+
+  .brand-app .compact-filter-sort legend {
+    padding: 0 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .brand-app .compact-filter-sort input,
+  .brand-app .compact-filter-choices input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  .brand-app .compact-filter-sort input:checked + span {
+    font-weight: 700;
+  }
+
+  .brand-app .compact-filter-heading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 0 0;
+    font: 700 16px/24px var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .brand-app .compact-filter-facet {
+    border-bottom: 1px solid #888;
+  }
+
+  .brand-app .compact-filter-facet:last-child {
+    border-bottom: 0;
+  }
+
+  .brand-app .compact-filter-facet summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    font-size: 16px;
+    text-transform: uppercase;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .brand-app .compact-filter-facet summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .brand-app .compact-filter-facet summary::after {
+    content: '+';
+    font-size: 22px;
+  }
+
+  .brand-app .compact-filter-facet[open] summary::after {
+    content: '−';
+  }
+
+  .brand-app .compact-filter-choices,
+  .brand-app .compact-price-range {
+    padding-bottom: 16px;
+  }
+
+  .brand-app .compact-catalog-toolbar .compact-price-range label {
+    display: block;
+    font-size: 14px;
+  }
+
+  .brand-app .compact-price-range input {
+    display: block;
+    width: 100%;
+    margin: 8px 0 12px;
+    accent-color: var(--primary);
+  }
+
+  .brand-app .compact-price-range > div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+
+  .brand-app .compact-filter-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 24px 12px max(24px, env(safe-area-inset-bottom));
+    border-top: 2px solid #999;
+    background: white;
+  }
+
+  .brand-app .compact-filter-actions .button {
+    min-height: 45px;
+    padding: 10px 4px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .brand-app .compact-filter-actions .secondary {
+    background: white;
+    color: var(--ink);
+    font-weight: 400;
+  }
+}

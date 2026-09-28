@@ -5,8 +5,10 @@ import { TileProductInfo } from '../shared/containers/universal-pdp/partials/Til
 import { ProductDetailsContent } from '../shared/containers/universal-pdp/partials/ProductDetailsContent';
 import { ProductGallery } from '../shared/containers/universal-pdp/partials/ProductGallery';
 import { SiteFooter } from '../shared/containers/universal-footer/container';
+import { CompactMobileFilters } from '../shared/containers/product-list/CompactMobileFilters';
 
 export const frontgateComponents = {
+  MobileCatalogFilters: CompactMobileFilters,
   Header: SiteHeader,
   Footer: SiteFooter,
   Home,

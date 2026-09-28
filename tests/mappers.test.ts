@@ -10,10 +10,130 @@ import {
   categoryTrail,
 } from '../src/shared/models/product-options.js';
 
+test('catalog sorting retains creation date and review scores without changing product-card presentation', () => {
+  const product = {
+    id: 'new-product',
+    name: { en: 'New Arrival' },
+    createdAt: '2026-09-01T00:00:00Z',
+    reviewRatingStatistics: { averageRating: 4.8, count: 12 },
+    masterVariant: { id: 1 },
+    variants: [],
+  } as unknown as ProductProjection;
+  const normalized = normalizeProduct(productView(product, 'en'));
+  assert.deepEqual(normalized.catalogSort, {
+    createdAt: '2026-09-01T00:00:00Z',
+    rating: 4.8,
+    reviewCount: 12,
+  });
+  assert.equal(normalized.rating, undefined);
+});
+
 test('localized names fall back to the same language, then another available translation', () => {
   assert.equal(localize({ 'en-GB': 'Chair', de: 'Stuhl' }, 'en-US'), 'Chair');
   assert.equal(localize({ de: 'Stuhl' }, 'fr'), 'Stuhl');
   assert.equal(localize(undefined, 'en'), '');
+});
+
+test('badge arrays retain separate localized labels from product or master-variant attributes', () => {
+  const product = {
+    id: 'badged-product',
+    name: { en: 'Chair' },
+    variants: [],
+    masterVariant: {
+      id: 1,
+      attributes: [
+        {
+          name: 'badge',
+          value: [
+            ' New ',
+            { key: 'exclusive', label: { en: 'Exclusive', de: 'Exklusiv' } },
+            'New',
+            '',
+            null,
+            { typeId: 'product', id: 'hidden' },
+            'Soft, durable',
+          ],
+        },
+        { name: 'finish', value: 'Ivory' },
+      ],
+    },
+  } as unknown as ProductProjection;
+  const mapped = productView(product, 'en');
+  assert.deepEqual(mapped.badges, ['New', 'Exclusive', 'Soft, durable']);
+  assert.deepEqual(normalizeProduct(mapped).badges, mapped.badges);
+  assert.deepEqual(mapped.variants[0].attributes, [
+    { name: 'finish', value: 'Ivory' },
+  ]);
+  assert.deepEqual(productView(product, 'de').badges, [
+    'New',
+    'Exklusiv',
+    'Soft, durable',
+  ]);
+  assert.deepEqual(
+    productView(
+      {
+        ...product,
+        attributes: [
+          {
+            name: 'badge',
+            value: [
+              { key: 'best', label: 'Best Seller' },
+              { en: 'Limited Edition' },
+            ],
+          },
+        ],
+      },
+      'en',
+    ).badges,
+    ['Best Seller', 'Limited Edition'],
+  );
+  assert.deepEqual(
+    productView(
+      { ...product, attributes: [{ name: 'badge', value: [] }] },
+      'en',
+    ).badges,
+    [],
+  );
+  assert.deepEqual(
+    productView({ ...product, masterVariant: { id: 1 } }, 'en').badges,
+    [],
+  );
+});
+
+test('live Badge casing and single enum values reach the storefront', () => {
+  const product = {
+    id: '42691753-230a-4edf-bd0d-a5ab268267f5',
+    name: { 'en-US': 'Cashmere Ankle Socks' },
+    attributes: [
+      { name: 'Badge', value: { key: 'New Color', label: 'New Color' } },
+    ],
+    masterVariant: { id: 1 },
+    variants: [],
+  } as unknown as ProductProjection;
+  assert.deepEqual(normalizeProduct(productView(product, 'en-US')).badges, [
+    'New Color',
+  ]);
+  const variantBadge = productView(
+    {
+      ...product,
+      attributes: [],
+      masterVariant: {
+        id: 1,
+        attributes: [
+          {
+            name: 'Badge',
+            value: [
+              { key: 'new', label: 'New' },
+              { key: 'color', label: 'New Color' },
+            ],
+          },
+        ],
+      },
+    },
+    'en-US',
+  );
+  assert.deepEqual(variantBadge.badges, ['New', 'New Color']);
+  assert.deepEqual(variantBadge.variants[0].attributes, []);
 });
 
 test('money retains currency precision rather than assuming two decimal places', () => {

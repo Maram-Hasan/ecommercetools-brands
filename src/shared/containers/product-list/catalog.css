@@ -212,9 +212,12 @@
 }
 
 @media (max-width: 480px) {
-  .brand-app .product-badge {
+  .brand-app .card-visual > .product-badges {
     top: 8px;
     left: 7px;
+    right: 7px;
+  }
+  .brand-app .product-badge {
     font-size: 7px;
     padding: 4px 6px;
   }

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useBrandComponents } from '../app/composition';
 import { useBrand } from '../../store/brand/context';
 import { Link } from '../app/router';
@@ -44,6 +45,16 @@ function ProductDetailsSkeleton() {
 }
 
 export function ProductDetails({ slug }: { slug: string }) {
+  const [smallScreen, setSmallScreen] = useState(
+    () => window.matchMedia('(max-width: 700px)').matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 700px)');
+    const update = () => setSmallScreen(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
   const brand = useBrand();
   const { ProductDetailsContent, ProductGallery } = useBrandComponents();
   const { product, selected, setSelected, error, retry } = useProduct(slug);
@@ -62,9 +73,17 @@ export function ProductDetails({ slug }: { slug: string }) {
   if (!product) return <ProductDetailsSkeleton />;
   const variant =
     product.variants.find((v) => v.id === selected) ?? product.variants[0];
+  const gallery = (
+    <ProductGallery
+      key={`${product.id}-${selected}`}
+      images={galleryImages(product, variant)}
+      name={product.name}
+    />
+  );
   return (
     <div className="page-width pdp-page">
       <Breadcrumbs
+        mobileParent
         items={[
           ...categoryTrail(product).map((category) => ({
             label: category.name,
@@ -74,16 +93,13 @@ export function ProductDetails({ slug }: { slug: string }) {
         ]}
       />
       <div className="pdp-layout">
-        <ProductGallery
-          key={`${product.id}-${selected}`}
-          images={galleryImages(product, variant)}
-          name={product.name}
-        />
+        {!smallScreen && gallery}
         <ProductInfo
           key={product.id}
           product={product}
           selected={selected}
           onSelect={setSelected}
+          mobileGallery={smallScreen ? gallery : undefined}
         />
       </div>
       <ProductDetailsContent product={product} />

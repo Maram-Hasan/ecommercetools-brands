@@ -1,0 +1,4 @@
+.brand-app[data-brand='fg'] .mini-cart-bottom .button:not(.secondary) {
+  border-color: var(--primary);
+  background: var(--primary);
+}

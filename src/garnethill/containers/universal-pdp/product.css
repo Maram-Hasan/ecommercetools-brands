@@ -69,7 +69,7 @@
   .gallery-main::-webkit-scrollbar {
   display: none;
 }
-.brand-app[data-brand='gh'] .gh-product-gallery .gh-gallery-panel {
+.brand-app[data-brand='gh'] .gh-product-gallery .gallery-panel {
   display: block;
   width: 100%;
   min-width: 0;
@@ -426,51 +426,81 @@
   }
   .brand-app[data-brand='gh'] .gh-product-gallery {
     display: flex;
-    flex-direction: column-reverse;
-    gap: 14px;
+    flex-direction: column;
+    width: calc(100% + 28px);
+    max-width: none;
+    min-width: 0;
+    margin-inline: -14px;
+    gap: 0;
   }
   .brand-app[data-brand='gh'] .gh-product-gallery .gallery-main {
+    display: flex;
+    gap: 0;
     width: 100%;
-    height: auto;
-    max-height: none;
-    overflow: visible;
-    scroll-snap-type: none;
-  }
-  .brand-app[data-brand='gh']
-    .gh-product-gallery
-    .gh-gallery-panel:not(.selected) {
-    display: none;
-  }
-  .brand-app[data-brand='gh'] .gh-product-gallery .gallery-image {
-    height: auto;
-    aspect-ratio: 4 / 5;
-  }
-  .brand-app[data-brand='gh'] .gh-product-gallery .gh-gallery-panel {
-    height: auto;
-  }
-  .brand-app[data-brand='gh'] .gh-product-gallery .gallery-thumbnails {
-    flex-direction: row;
-    gap: 10px;
     height: auto;
     max-height: none;
     overflow-x: auto;
     overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+  }
+  .brand-app[data-brand='gh'] .gh-product-gallery .gallery-image {
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .brand-app[data-brand='gh'] .gh-product-gallery .gallery-panel {
+    flex: 0 0 100%;
+    height: auto;
+    scroll-snap-stop: always;
+  }
+  .brand-app[data-brand='gh'] .gh-product-gallery .gallery-thumbnails {
+    flex-direction: row;
+    order: 2;
+    width: 100%;
+    min-width: 0;
+    gap: 16px;
+    padding: 16px;
+    height: auto;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #555 #f4f4f4;
+    scroll-padding-inline: 16px;
+    scroll-snap-type: x proximity;
+  }
+  .brand-app[data-brand='gh']
+    .gh-product-gallery
+    .gallery-thumbnails::-webkit-scrollbar {
+    display: block;
+    height: 6px;
+  }
+  .brand-app[data-brand='gh']
+    .gh-product-gallery
+    .gallery-thumbnails::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
   }
   .brand-app[data-brand='gh'] .gh-product-gallery .gallery-thumbnails button {
-    width: 62px;
-    height: 78px;
+    width: 96px;
+    height: 120px;
+    scroll-snap-align: start;
   }
   .brand-app[data-brand='gh'] .product-heading-row {
-    grid-template-columns: 1fr;
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
   }
   .brand-app[data-brand='gh'] .product-heading-row .sku {
-    grid-column: 1;
+    grid-column: 2;
     grid-row: 1;
     justify-self: end;
+    max-width: min(38vw, 150px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 12px;
   }
   .brand-app[data-brand='gh'] .product-heading-row h1 {
-    grid-row: 2;
+    grid-row: 1;
+    overflow-wrap: anywhere;
     font-size: 25px;
   }
   .brand-app[data-brand='gh'] .gh-product-options {
@@ -486,9 +516,7 @@
   .brand-app[data-brand='gh'] .gh-purchase-actions {
     grid-template-columns: minmax(0, 1fr) 56px;
   }
-  .brand-app[data-brand='gh'] .gh-purchase-row .quantity-selector {
-    width: 124px;
-  }
+
   .brand-app[data-brand='gh'] .gh-product-total span,
   .brand-app[data-brand='gh'] .gh-product-total output {
     font-size: 16px;

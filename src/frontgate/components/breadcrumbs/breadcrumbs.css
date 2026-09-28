@@ -1,0 +1,30 @@
+.brand-app[data-brand='fg'] .breadcrumbs,
+.brand-app[data-brand='fg'] .pdp-page .breadcrumbs {
+  padding-block: 12px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  gap: 8px;
+}
+
+.brand-app[data-brand='fg'] .breadcrumbs > span {
+  gap: 8px;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .brand-app[data-brand='fg'] .breadcrumbs,
+  .brand-app[data-brand='fg'] .pdp-page .breadcrumbs {
+    padding-block: 10px 12px;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .brand-app[data-brand='fg'] .breadcrumbs > span {
+    gap: 6px;
+  }
+
+  .brand-app[data-brand='fg'] .breadcrumbs > :not(.breadcrumb-mobile-current),
+  .brand-app[data-brand='fg'] .breadcrumb-mobile-current > [aria-hidden] {
+    display: none;
+  }
+}

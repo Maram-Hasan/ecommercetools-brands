@@ -1,19 +1,23 @@
 .brand-app[data-brand='fg'] .utility-bar {
   min-height: 22px;
+  max-width: 1440px;
+  padding-inline: 24px;
 }
 
 .brand-app[data-brand='fg'] .brand-header {
   min-height: 62px;
-  padding-bottom: 12px;
-  grid-template-columns: minmax(230px, 1fr) minmax(240px, 500px) minmax(
-      110px,
+  max-width: 1440px;
+  padding: 0 24px 10px;
+  grid-template-columns: minmax(240px, 1fr) minmax(240px, 500px) minmax(
+      115px,
       1fr
     );
   gap: 28px;
 }
 
 .brand-app[data-brand='fg'] .site-search input {
-  height: 40px;
+  height: 35px;
+  padding-left: 10px;
   color: #222;
 }
 
@@ -28,14 +32,14 @@
   justify-content: space-between;
   gap: 18px;
   list-style: none;
-  padding: 0 var(--page-space);
+  padding: 0 24px;
   margin: 0 auto;
-  max-width: 1344px;
+  max-width: 1440px;
 }
 
 .brand-app[data-brand='fg'] .production-navigation a {
   display: block;
-  padding: 12px 0;
+  padding: 11px 0;
   font-size: 11px;
   letter-spacing: 0.025em;
   white-space: nowrap;
@@ -66,7 +70,12 @@
   .brand-app[data-brand='fg'] .brand-header {
     grid-template-columns: 40px minmax(0, 1fr) 44px;
     gap: 5px;
-    padding: 10px 16px 12px;
+    min-height: 0;
+    padding: 8px 16px;
+  }
+
+  .brand-app[data-brand='fg'] .header-search {
+    margin-top: 5px;
   }
 
   .brand-app[data-brand='fg'] .navigation-drawer .production-navigation ul {

@@ -9,10 +9,13 @@
 .brand-app[data-brand='gh'] .catalog-results .card-visual img {
   object-fit: cover;
 }
+.brand-app[data-brand='gh'] .catalog-results .product-badges {
+  margin-top: 7px;
+}
 .brand-app[data-brand='gh'] .catalog-results .product-badge {
   position: static;
   display: inline-block;
-  margin: 7px 0 0;
+  margin: 0;
   padding: 4px 7px;
   background: #f4f2ef;
   font: 700 12px/1 var(--font-body);

@@ -70,6 +70,298 @@ function products(brand: keyof typeof keys) {
   ];
 }
 
+test('GR and FG galleries use the GH media stack and mobile carousel behavior', async ({
+  page,
+}, info) => {
+  for (const brand of ['gr', 'fg'] as const) {
+    const product = products(brand)[0];
+    product.variants[0].images = Array.from(
+      { length: 8 },
+      (_, index) => `/test-assets/lounge.jpg?view=${index}`,
+    );
+    await page.route(`**/api/products/${product.id}?*`, (route) =>
+      route.fulfill({ json: product }),
+    );
+    await page.goto(`/${brand}/product/${product.id}`);
+    const gallery = page.locator('.product-gallery');
+    const main = gallery.locator('.gallery-main');
+    const thumbnails = gallery.locator('.gallery-thumbnails');
+    await expect(thumbnails.getByRole('button')).toHaveCount(9);
+    if (info.project.name === 'mobile') {
+      for (const width of [320, 390, 700]) {
+        await page.setViewportSize({ width, height: 844 });
+        const geometry = await gallery.evaluate((element) => {
+          const main = element.querySelector('.gallery-main')!;
+          const strip = element.querySelector('.gallery-thumbnails')!;
+          const mainRect = main.getBoundingClientRect();
+          const stripRect = strip.getBoundingClientRect();
+          return {
+            width: mainRect.width,
+            left: mainRect.left,
+            stripWidth: stripRect.width,
+            below: stripRect.top >= mainRect.bottom,
+            stripOverflows: strip.scrollWidth > strip.clientWidth,
+            mainOverflows: main.scrollWidth > main.clientWidth,
+            pageWidth: document.documentElement.scrollWidth,
+          };
+        });
+        expect(geometry).toEqual({
+          width,
+          left: 0,
+          stripWidth: width,
+          below: true,
+          stripOverflows: true,
+          mainOverflows: true,
+          pageWidth: width,
+        });
+      }
+      await page.setViewportSize({ width: 390, height: 844 });
+    } else {
+      for (const viewport of [main, thumbnails]) {
+        expect(
+          await viewport.evaluate((element) => ({
+            bounded: element.scrollHeight > element.clientHeight,
+            overflow: getComputedStyle(element).overflowY,
+          })),
+        ).toEqual({ bounded: true, overflow: 'auto' });
+      }
+      const strip = await thumbnails.boundingBox();
+      const media = await main.boundingBox();
+      expect(strip!.x + strip!.width).toBeLessThan(media!.x);
+    }
+    await thumbnails
+      .getByRole('button', { name: 'View image 4', exact: true })
+      .click();
+    await expect
+      .poll(() =>
+        main.evaluate((element) => {
+          const panel = element
+            .querySelectorAll('.gallery-panel')[3]
+            .getBoundingClientRect();
+          const viewport = element.getBoundingClientRect();
+          return Math.round(
+            window.innerWidth <= 700
+              ? panel.left - viewport.left
+              : panel.top - viewport.top,
+          );
+        }),
+      )
+      .toBe(0);
+    await expect(
+      thumbnails.getByRole('button', { name: 'View image 4', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await gallery
+      .getByRole('button', { name: 'Enlarge product image 4', exact: true })
+      .click();
+    await expect(page.getByRole('dialog').locator('img')).toHaveAttribute(
+      'src',
+      '/test-assets/lounge.jpg?view=3',
+    );
+    await page.keyboard.press('Escape');
+    if (info.project.name === 'mobile') {
+      await main.evaluate((element) =>
+        element.scrollTo({
+          left: element.clientWidth * 7,
+          behavior: 'instant',
+        }),
+      );
+      await expect(
+        thumbnails.getByRole('button', { name: 'View image 8', exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      await expect
+        .poll(() =>
+          thumbnails.evaluate((element) => {
+            const selected = element
+              .querySelector('[aria-pressed="true"]')!
+              .getBoundingClientRect();
+            const strip = element.getBoundingClientRect();
+            return selected.left >= strip.left && selected.right <= strip.right;
+          }),
+        )
+        .toBe(true);
+    }
+    await gallery.screenshot({
+      path: `test-results/${brand}-${info.project.name}-responsive-gallery.png`,
+    });
+  }
+});
+
+test('catalog badge arrays render separate labels on cards and product pages for every brand', async ({
+  page,
+}, info) => {
+  for (const brand of ['fg', 'gr', 'gh'] as const) {
+    const collection = products(brand);
+    const badges = ['NEW', 'EXCLUSIVE', 'Soft, durable'];
+    const badged = { ...collection[0], badges };
+    await page.route(`**/api/products?*`, (route) =>
+      route.fulfill({
+        json: {
+          products: [badged, collection[1]],
+          total: 2,
+          offset: 0,
+          limit: 24,
+        },
+      }),
+    );
+    await page.route(`**/api/products/by-slug/${badged.slug}?*`, (route) =>
+      route.fulfill({ json: badged }),
+    );
+    await page.goto(`/${brand}/category/furniture`);
+    const cards = page.locator('.catalog-results .shop-product-card');
+    await expect(cards).toHaveCount(2);
+    await expect(cards.first().locator('.product-badge')).toHaveText(badges);
+    await expect(cards.nth(1).locator('.product-badges')).toHaveCount(0);
+    const bounds = await cards.first().evaluate((element) => {
+      const card = element.getBoundingClientRect();
+      const badges = [...element.querySelectorAll('.product-badge')].map(
+        (badge) => badge.getBoundingClientRect(),
+      );
+      return badges.every(
+        (badge, index) =>
+          badge.left >= card.left &&
+          badge.right <= card.right &&
+          (!index || badge.top >= badges[index - 1].bottom),
+      );
+    });
+    expect(bounds).toBe(true);
+    await cards.first().screenshot({
+      path: `test-results/${brand}-${info.project.name}-badges.png`,
+    });
+    await cards
+      .first()
+      .getByRole('link', { name: badged.name, exact: true })
+      .click();
+    await expect(page.locator('.product-info-panel .product-badge')).toHaveText(
+      badges,
+    );
+    await expect(
+      page.locator('.variant-attributes dt').filter({ hasText: /^badge$/ }),
+    ).toHaveCount(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(page.viewportSize()!.width);
+  }
+});
+
+test('mobile PDP summary precedes the carousel and touch gestures scroll the page for all brands', async ({
+  page,
+}, info) => {
+  test.skip(
+    info.project.name !== 'mobile',
+    'Touch behavior and mobile summary',
+  );
+  test.setTimeout(90000);
+  const session = await page.context().newCDPSession(page);
+  const swipe = async (x: number, y: number, dx: number, dy: number) => {
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x, y }],
+    });
+    for (let step = 1; step <= 10; step++) {
+      await session.send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x: x + (dx * step) / 10, y: y + (dy * step) / 10 }],
+      });
+      await page.waitForTimeout(25);
+    }
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+  };
+  for (const brand of ['fg', 'gr', 'gh'] as const) {
+    const product = {
+      ...products(brand)[0],
+      badges: ['New Color', 'Exclusive'],
+    };
+    product.variants[0].images = Array.from(
+      { length: 5 },
+      (_, index) => `/test-assets/lounge.jpg?view=${index}`,
+    );
+    await page.route(`**/api/products/${product.id}?*`, (route) =>
+      route.fulfill({ json: product }),
+    );
+    await page.goto(`/${brand}/product/${product.id}`);
+    const panel = page.locator('.product-info-panel');
+    const gallery = page.locator('.product-gallery');
+    const main = gallery.locator('.gallery-main');
+    await expect(panel.locator('.product-badge')).toHaveText(product.badges);
+    for (const width of [320, 390, 700]) {
+      await page.setViewportSize({ width, height: 844 });
+      await expect(
+        page.getByRole('heading', { name: product.name, exact: true }),
+      ).toHaveCount(1);
+      const geometry = await panel.evaluate((element) => {
+        const rect = (selector: string) =>
+          element.querySelector(selector)!.getBoundingClientRect();
+        const gallery = rect('.product-gallery');
+        const heading = rect('h1');
+        const sku = rect('.sku');
+        return {
+          summaryAbove: [
+            '.product-heading-row',
+            '.product-badges',
+            '.shop-price',
+          ].every((selector) => rect(selector).bottom <= gallery.top),
+          skuOnRight: sku.left >= heading.right,
+          sameRow: sku.top < heading.bottom && sku.bottom > heading.top,
+          optionsBelow: rect('fieldset').top >= gallery.bottom,
+          galleryWidth: gallery.width,
+          pageWidth: document.documentElement.scrollWidth,
+        };
+      });
+      expect(geometry).toEqual({
+        summaryAbove: true,
+        skuOnRight: true,
+        sameRow: true,
+        optionsBelow: true,
+        galleryWidth: width,
+        pageWidth: width,
+      });
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const viewport of [main, gallery.locator('.gallery-thumbnails')]) {
+      await viewport.evaluate((element) =>
+        element.scrollIntoView({ block: 'center' }),
+      );
+      const rect = await viewport.boundingBox();
+      const before = await page.evaluate(() => window.scrollY);
+      await expect(viewport).toHaveCSS('overscroll-behavior-y', 'auto');
+      await swipe(
+        Math.round(rect!.x + rect!.width / 2),
+        Math.round(rect!.y + rect!.height / 2),
+        0,
+        -180,
+      );
+      await expect
+        .poll(() => page.evaluate(() => window.scrollY))
+        .toBeGreaterThan(before + 40);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    }
+    await main.evaluate((element) =>
+      element.scrollIntoView({ block: 'center' }),
+    );
+    const rect = await main.boundingBox();
+    await swipe(
+      Math.round(rect!.x + rect!.width * 0.85),
+      Math.round(rect!.y + rect!.height / 2),
+      -260,
+      0,
+    );
+    await expect
+      .poll(() => main.evaluate((element) => element.scrollLeft))
+      .toBeGreaterThan(100);
+    await page
+      .getByRole('button', { name: 'Choose Walnut', exact: true })
+      .click();
+    await expect(panel.locator('.sku')).toContainText('CHAIR-WALNUT');
+    await expect(panel.locator('.shop-price')).toContainText('$399.00');
+    await expect(panel.locator('.product-badge')).toHaveText(product.badges);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: `test-results/${brand}-mobile-summary.png` });
+  }
+});
+
 test.beforeEach(async ({ page }) => {
   await page.route('**/test-assets/*', (route) => {
     const name = new URL(route.request().url()).pathname.split('/').pop();
@@ -204,25 +496,44 @@ for (const brand of ['fg', 'gr', 'gh'] as const) {
     await expect(page).toHaveURL(
       new RegExp('/' + brand + '/category/all-products'),
     );
+    const ghMobile = brand === 'gh' && info.project.name === 'mobile';
+    const mobileFilters = info.project.name === 'mobile';
     if (info.project.name === 'mobile')
-      await page.getByRole('button', { name: 'Filters +' }).click();
-    if (brand === 'gh')
+      await page.getByRole('button', { name: 'Filter & Sort' }).click();
+    if (mobileFilters)
+      await page
+        .getByRole('dialog')
+        .locator('summary')
+        .filter({ hasText: ghMobile ? 'Category' : 'Type' })
+        .click();
+    else if (brand === 'gh')
       await page
         .locator('.gh-departments details')
         .filter({ hasText: 'Chairs' })
         .locator('summary')
         .click();
-    await page.getByLabel('Chairs', { exact: true }).check();
+    const filterArea = mobileFilters
+      ? page.getByRole('dialog')
+      : page.locator('.filters');
+    await filterArea.getByLabel('Chairs', { exact: true }).check();
     await expect(page.locator('.shop-product-card')).toHaveCount(1);
-    if (brand === 'gh' || brand === 'gr')
-      await page.getByLabel('Chairs', { exact: true }).uncheck();
+    if (mobileFilters || brand === 'gh' || brand === 'gr')
+      await filterArea.getByLabel('Chairs', { exact: true }).uncheck();
     else
       await page
         .getByRole('button', { name: 'Clear all', exact: true })
         .click();
-    await page.getByLabel('Sort by').selectOption('high');
+    if (mobileFilters) {
+      await page
+        .getByRole('radio', {
+          name: ghMobile ? 'Price: Low to High' : 'Price:(High to Low)',
+          exact: true,
+        })
+        .check();
+      await page.getByRole('button', { name: /^View 2 Items$/i }).click();
+    } else await page.getByLabel('Sort by').selectOption('high');
     await expect(page.locator('.shop-product-card').first()).toContainText(
-      'Connected Sofa',
+      ghMobile ? 'Connected Chair' : 'Connected Sofa',
     );
     await screenshot(page, brand + '-category', info.project.name);
     if (brand === 'gh' && info.project.name === 'desktop') {
@@ -346,13 +657,11 @@ test('brand changes use new Store keys and keep carts isolated', async ({
   await expect(page.locator('.shop-product-card').first()).toContainText(
     'GR Connected Chair',
   );
-  await page
-    .getByRole('button', { name: 'Open shopping bag, 0 items' })
-    .click();
+  await page.getByRole('link', { name: 'Open shopping bag, 0 items' }).click();
+  await expect(page).toHaveURL(/\/gr\/cart$/);
   await expect(
-    page.getByRole('dialog').getByRole('heading', { name: 'In Your Bag (0)' }),
+    page.getByRole('heading', { name: 'Your next favorite is waiting.' }),
   ).toBeVisible();
-  await page.keyboard.press('Escape');
   await page.goto('/fg/cart');
   await page
     .getByRole('navigation', { name: 'Choose brand' })
@@ -362,7 +671,7 @@ test('brand changes use new Store keys and keep carts isolated', async ({
     'GH Connected Chair',
   );
   await expect(
-    page.getByRole('button', { name: 'Open shopping bag, 0 items' }),
+    page.getByRole('link', { name: 'Open shopping bag, 0 items' }),
   ).toBeVisible();
   await page.goto('/gh/product/' + id(5));
   await page.getByRole('button', { name: 'Add To Bag', exact: true }).click();
@@ -392,7 +701,9 @@ test('bag hover opens the mini cart for every storefront', async ({
   for (const brand of ['fg', 'gr', 'gh'] as const) {
     await page.goto(`/${brand}`);
     await page
-      .getByRole('button', { name: 'Open shopping bag, 0 items' })
+      .getByRole('link', {
+        name: 'Open shopping bag, 0 items',
+      })
       .hover();
     await expect(
       page
@@ -401,6 +712,70 @@ test('bag hover opens the mini cart for every storefront', async ({
     ).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
+  }
+});
+
+test('brand header cart links stay clickable during hover and mobile breadcrumbs show the latest category', async ({
+  page,
+}, info) => {
+  for (const brand of ['gh', 'gr', 'fg'] as const) {
+    const product = products(brand)[0];
+    await page.goto(`/${brand}/product/${product.id}`);
+    const breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
+    await expect(
+      page.getByRole('heading', { name: product.name, exact: true }),
+    ).toBeVisible();
+    if (info.project.name === 'mobile') {
+      await expect(breadcrumb.locator(':scope > :visible')).toHaveCount(1);
+      await expect(
+        breadcrumb.getByRole('link', { name: 'Chairs', exact: true }),
+      ).toBeVisible();
+      await expect(
+        breadcrumb.getByRole('link', { name: 'Home', exact: true }),
+      ).toBeHidden();
+      await expect(breadcrumb.locator('[aria-current]')).toBeHidden();
+    } else {
+      await expect(breadcrumb.locator(':scope > :visible')).toHaveCount(4);
+      await expect(
+        breadcrumb.getByRole('link', { name: 'Home', exact: true }),
+      ).toBeVisible();
+      await expect(breadcrumb.locator('[aria-current]')).toHaveText(
+        product.name,
+      );
+    }
+    await breadcrumb.getByRole('link', { name: 'Chairs', exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/${brand}/category/chairs$`));
+    if (info.project.name === 'mobile') {
+      await expect(breadcrumb.locator(':scope > :visible')).toHaveCount(1);
+      await expect(breadcrumb.locator('[aria-current]')).toHaveText('Chairs');
+    }
+    const cartLink = page.getByRole('link', {
+      name: 'Open shopping bag, 0 items',
+      exact: true,
+    });
+    await expect(cartLink).toHaveAttribute('href', `/${brand}/cart`);
+    if (info.project.name === 'desktop') {
+      await cartLink.hover();
+      const preview = page.getByRole('dialog', { name: 'In Your Bag (0)' });
+      await expect(preview).toBeVisible();
+      expect(await page.evaluate(() => document.body.style.overflow)).not.toBe(
+        'hidden',
+      );
+      await expect(cartLink).toBeVisible();
+      await cartLink.click();
+    } else {
+      await cartLink.tap();
+    }
+    await expect(page).toHaveURL(new RegExp(`/${brand}/cart$`));
+    await expect(
+      page.getByRole('heading', { name: 'Your Shopping Bag', exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page.mouse.move(0, 0);
+    await page.goto(`/${brand}`);
+    await cartLink.focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(new RegExp(`/${brand}/cart$`));
   }
 });
 
@@ -421,9 +796,19 @@ test('categories, search and quick view use API data', async ({
       .getByRole('link', { name: 'FURNITURE', exact: true })
       .click();
   await expect(page).toHaveURL(/\/gr\/category\/furniture/);
-  if (await page.getByRole('button', { name: 'Filters +' }).isVisible())
-    await page.getByRole('button', { name: 'Filters +' }).click();
-  await page.getByLabel('Chairs', { exact: true }).check();
+  if (await page.getByRole('button', { name: 'Filter & Sort' }).isVisible()) {
+    await page.getByRole('button', { name: 'Filter & Sort' }).click();
+    await page
+      .getByRole('dialog')
+      .locator('summary')
+      .filter({ hasText: 'Type' })
+      .click();
+    await page
+      .getByRole('dialog')
+      .getByLabel('Chairs', { exact: true })
+      .check();
+    await page.getByRole('button', { name: /^View 1 Items$/i }).click();
+  } else await page.getByLabel('Chairs', { exact: true }).check();
   await expect(page.locator('.shop-product-card')).toHaveCount(1);
   await page.locator('.shop-product-card').first().hover();
   await page.getByRole('button', { name: 'Quick View', exact: true }).click();
@@ -634,10 +1019,9 @@ test('GR production PDP uses real swatches, gallery, inventory and quantity tota
     '$39.00',
   );
   await page.getByRole('button', { name: 'View image 2', exact: true }).click();
-  await expect(page.locator('.gallery-image img').first()).toHaveAttribute(
-    'src',
-    '/test-assets/lounge.jpg?detail=1',
-  );
+  await expect(
+    page.locator('.gallery-panel.selected .gallery-image img'),
+  ).toHaveAttribute('src', '/test-assets/lounge.jpg?detail=1');
   await page.getByRole('button', { name: 'Increase quantity' }).click();
   await expect(page.getByRole('status', { name: 'Product total' })).toHaveText(
     '$78.00',
@@ -662,10 +1046,9 @@ test('GR production PDP uses real swatches, gallery, inventory and quantity tota
   await expect(page.locator('.product-heading-row .sku')).toHaveText(
     'SKU: 159041 GREEN',
   );
-  await expect(page.locator('.gallery-image img')).toHaveAttribute(
-    'src',
-    '/test-assets/chair.jpg',
-  );
+  await expect(
+    page.locator('.gallery-panel.selected .gallery-image img'),
+  ).toHaveAttribute('src', '/test-assets/chair.jpg');
   await expect(page.getByRole('status', { name: 'Product total' })).toHaveText(
     '$98.00',
   );
@@ -684,7 +1067,7 @@ test('GR production PDP uses real swatches, gallery, inventory and quantity tota
   const gallery = await page.locator('.product-gallery').boundingBox();
   const details = await page.locator('.product-info-panel').boundingBox();
   if (info.project.name === 'mobile')
-    expect(details!.y).toBeGreaterThan(gallery!.y + gallery!.height);
+    expect(details!.y).toBeLessThan(gallery!.y);
   else expect(details!.x).toBeGreaterThan(gallery!.x);
   await page.getByRole('button', { name: 'ADD TO CART', exact: true }).click();
   await expect(page.getByRole('dialog')).toContainText(product.name);
@@ -756,10 +1139,9 @@ test('FG PDP size selection updates images, SKU, price and purchase availability
   await expect(page.locator('.product-heading-row .sku')).toHaveText(
     'SKU: PAD-LARGE',
   );
-  await expect(page.locator('.gallery-image img')).toHaveAttribute(
-    'src',
-    '/test-assets/chair.jpg',
-  );
+  await expect(
+    page.locator('.gallery-panel.selected .gallery-image img'),
+  ).toHaveAttribute('src', '/test-assets/chair.jpg');
   await expect(page.locator('.product-info-panel .shop-price')).toHaveText(
     '$89.00',
   );
@@ -771,7 +1153,7 @@ test('FG PDP size selection updates images, SKU, price and purchase availability
   const gallery = await page.locator('.product-gallery').boundingBox();
   const details = await page.locator('.product-info-panel').boundingBox();
   if (info.project.name === 'mobile')
-    expect(details!.y).toBeGreaterThan(gallery!.y + gallery!.height);
+    expect(details!.y).toBeLessThan(gallery!.y);
   else expect(details!.x).toBeGreaterThan(gallery!.x);
   for (const width of [320, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -877,6 +1259,81 @@ test('GH color and size choices preserve real variants, price, gallery and bag i
         scrollbarWidth: getComputedStyle(element).scrollbarWidth,
       })),
     ).toEqual({ bounded: true, overflowY: 'auto', scrollbarWidth: 'none' });
+  } else {
+    const gallery = page.locator('.gh-product-gallery');
+    const main = gallery.locator('.gallery-main');
+    const thumbnails = gallery.locator('.gallery-thumbnails');
+    for (const width of [390, 320, 700]) {
+      await page.setViewportSize({ width, height: 844 });
+      const geometry = await gallery.evaluate((element) => {
+        const main = element.querySelector('.gallery-main')!;
+        const strip = element.querySelector('.gallery-thumbnails')!;
+        const mainRect = main.getBoundingClientRect();
+        const stripRect = strip.getBoundingClientRect();
+        const heading = document
+          .querySelector('.product-heading-row h1')!
+          .getBoundingClientRect();
+        const sku = document
+          .querySelector('.product-heading-row .sku')!
+          .getBoundingClientRect();
+        return {
+          mainWidth: mainRect.width,
+          mainLeft: mainRect.left,
+          stripWidth: stripRect.width,
+          stripBelow: stripRect.top >= mainRect.bottom,
+          stripOverflows: strip.scrollWidth > strip.clientWidth,
+          horizontal: getComputedStyle(strip).overflowX,
+          pageWidth: document.documentElement.scrollWidth,
+          headingSameRow: sku.top < heading.bottom && sku.bottom > heading.top,
+          skuOnRight: sku.left >= heading.right,
+        };
+      });
+      expect(geometry).toEqual({
+        mainWidth: width,
+        mainLeft: 0,
+        stripWidth: width,
+        stripBelow: true,
+        stripOverflows: true,
+        horizontal: 'auto',
+        pageWidth: width,
+        headingSameRow: true,
+        skuOnRight: true,
+      });
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await thumbnails
+      .getByRole('button', { name: 'View image 4', exact: true })
+      .click();
+    await expect
+      .poll(() =>
+        main.evaluate((element) =>
+          Math.round(element.scrollLeft / element.clientWidth),
+        ),
+      )
+      .toBe(3);
+    await expect(
+      thumbnails.getByRole('button', { name: 'View image 4', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await main.evaluate((element) =>
+      element.scrollTo({ left: element.clientWidth, behavior: 'instant' }),
+    );
+    await expect(
+      thumbnails.getByRole('button', { name: 'View image 2', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await page
+      .getByRole('button', { name: 'Enlarge product image 2', exact: true })
+      .click();
+    await expect(page.getByRole('dialog').locator('img')).toHaveAttribute(
+      'src',
+      '/test-assets/lounge.jpg?detail=1',
+    );
+    await page.keyboard.press('Escape');
+    await gallery.screenshot({
+      path: 'test-results/gh-mobile-pdp-gallery.png',
+    });
+    await panel
+      .locator('.product-heading-row')
+      .screenshot({ path: 'test-results/gh-mobile-pdp-heading.png' });
   }
   await expect(panel.locator('select')).toHaveCount(0);
   await expect(panel.locator('del')).toHaveText('$179.00');
@@ -1101,7 +1558,7 @@ test('brand switch during a pending add cannot open or replace the next Store ba
   await response;
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(
-    page.getByRole('button', {
+    page.getByRole('link', {
       name: 'Open shopping bag, 0 items',
       exact: true,
     }),
@@ -1124,6 +1581,9 @@ test('brand layouts fit narrow phones and both sides of the navigation and PDP b
     const stackedAt = brand === 'gh' ? 900 : 700;
     for (const width of [320, 700, 701, 900, 901, 1023, 1024]) {
       await page.setViewportSize({ width, height: 1000 });
+      await expect(
+        page.locator('.product-info-panel .product-gallery'),
+      ).toHaveCount(width <= 700 ? 1 : 0);
       const geometry = await page.evaluate(() => {
         const header = document
           .querySelector('.brand-header')!
@@ -1154,7 +1614,9 @@ test('brand layouts fit narrow phones and both sides of the navigation and PDP b
         geometry.info.right,
         `${brand} purchase controls at ${width}px`,
       ).toBeLessThanOrEqual(width + 1);
-      if (width <= stackedAt)
+      if (width <= 700)
+        expect(geometry.info.y).toBeLessThan(geometry.gallery.y);
+      else if (width <= stackedAt)
         expect(geometry.info.y).toBeGreaterThanOrEqual(geometry.gallery.bottom);
       else
         expect(geometry.info.x).toBeGreaterThanOrEqual(geometry.gallery.right);
@@ -1245,6 +1707,434 @@ test('decoded category slugs select the matching collection', async ({
   await page.goto('/fg/category/bed%20%26%20bath');
   await expect(page.locator('.category-intro h1')).toHaveText('Bed & Bath');
   await expect(page.locator('.shop-product-card')).toHaveCount(2);
+});
+
+test('GH small screen filter and sort preserves the desktop controls', async ({
+  page,
+}, info) => {
+  const collection = products('gh').map((product, index) => ({
+    ...product,
+    catalogSort: {
+      createdAt: index ? '2026-02-01T00:00:00Z' : '2025-01-01T00:00:00Z',
+      rating: index ? 5 : 3,
+      reviewCount: index ? 10 : 2,
+    },
+    variants: product.variants.map((variant) => ({
+      ...variant,
+      attributes: [
+        { name: 'size', value: index ? 'Large' : 'Small' },
+        { name: 'color', value: index ? 'Blue' : 'Red' },
+        { name: 'material', value: index ? 'Linen' : 'Cotton' },
+      ],
+    })),
+  }));
+  await page.route('**/api/products?**', (route) =>
+    route.fulfill({
+      json: { products: collection, total: 2, offset: 0, limit: 24 },
+    }),
+  );
+  await page.goto('/gh/category/all-products');
+  await expect(page.locator('.shop-product-card')).toHaveCount(2);
+  const trigger = page.getByRole('button', {
+    name: 'Filter & Sort',
+    exact: true,
+  });
+  if (info.project.name !== 'mobile') {
+    await expect(trigger).toBeHidden();
+    await expect(page.locator('.filters')).toBeVisible();
+    await expect(page.getByLabel('Sort by')).toBeVisible();
+    await expect(page.locator('.catalog-page-status')).toContainText(
+      'Page 1 of 1',
+    );
+    await page.getByLabel('Sort by').selectOption('high');
+    await expect(page.locator('.shop-product-card').first()).toContainText(
+      'Connected Sofa',
+    );
+    return;
+  }
+  await expect(page.locator('.filters')).toBeHidden();
+  await expect(page.getByLabel('Sort by')).toBeHidden();
+  await expect(page.locator('.catalog-item-count')).toHaveText('2 Items');
+  await screenshot(page, 'gh-mobile-filter-listing', info.project.name);
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: 'Filter & Sort' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('details[open]')).toHaveCount(0);
+  await expect(
+    dialog.getByRole('radio', { name: 'Featured', exact: true }),
+  ).toBeChecked();
+  await screenshot(page, 'gh-mobile-filter-dialog', info.project.name);
+  for (const name of ['New Arrival', 'Top Rated', 'Rating: High to Low']) {
+    await dialog.getByRole('radio', { name, exact: true }).check();
+    await expect(page.locator('.shop-product-card').first()).toContainText(
+      'Connected Sofa',
+    );
+  }
+  await dialog
+    .getByRole('radio', { name: 'Price: Low to High', exact: true })
+    .check();
+  await expect(page.locator('.shop-product-card').first()).toContainText(
+    'Connected Chair',
+  );
+  await dialog
+    .locator('summary')
+    .filter({ hasText: /^Category$/ })
+    .click();
+  await dialog.getByLabel('Chairs', { exact: true }).check();
+  await expect(
+    dialog.getByRole('button', { name: 'View 1 Items' }),
+  ).toBeVisible();
+  await dialog.getByRole('button', { name: 'View 1 Items' }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await expect(page.locator('.shop-product-card')).toHaveCount(1);
+  await trigger.click();
+  await dialog
+    .locator('summary')
+    .filter({ hasText: /^Category$/ })
+    .click();
+  await expect(dialog.getByLabel('Chairs', { exact: true })).toBeChecked();
+  await dialog.getByRole('button', { name: 'Clear All', exact: true }).click();
+  await expect(
+    dialog.getByRole('radio', { name: 'Featured', exact: true }),
+  ).toBeChecked();
+  for (const [facet, choice] of [
+    ['Size', 'Small (1)'],
+    ['Color', 'Red (1)'],
+    ['Material', 'Cotton (1)'],
+  ]) {
+    await dialog
+      .locator('summary')
+      .filter({ hasText: new RegExp(`^${facet}$`) })
+      .click();
+    await dialog.getByLabel(choice, { exact: true }).check();
+  }
+  await expect(
+    dialog.getByRole('button', { name: 'View 1 Items' }),
+  ).toBeVisible();
+  await dialog.getByRole('button', { name: 'Clear All', exact: true }).click();
+  await dialog
+    .locator('summary')
+    .filter({ hasText: /^Price$/ })
+    .click();
+  await dialog
+    .getByRole('radio', { name: '$500 and over', exact: true })
+    .check();
+  await expect(
+    dialog.getByRole('button', { name: 'View 1 Items' }),
+  ).toBeVisible();
+  await expect(page.locator('.shop-product-card').first()).toContainText(
+    'Connected Sofa',
+  );
+  await dialog.getByRole('button', { name: 'Clear All', exact: true }).click();
+  await expect(
+    dialog.getByRole('button', { name: 'View 2 Items' }),
+  ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await trigger.click();
+  await dialog.getByRole('button', { name: 'Close filter and sort' }).click();
+  await expect(dialog).toHaveCount(0);
+  await trigger.click();
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator('.filters')).toBeVisible();
+  await expect(page.getByLabel('Sort by')).toBeVisible();
+  expect(await page.evaluate(() => document.body.style.overflow)).not.toBe(
+    'hidden',
+  );
+});
+
+test('GR and FG mobile filter overlay matches the compact catalog controls', async ({
+  page,
+}, info) => {
+  for (const brand of ['gr', 'fg'] as const) {
+    const collection = products(brand).map((product, index) => ({
+      ...product,
+      catalogSort: {
+        createdAt: index ? '2026-09-01T00:00:00Z' : '2025-01-01T00:00:00Z',
+        rating: index ? 5 : 3,
+      },
+      variants: product.variants.map((variant) => ({
+        ...variant,
+        available: index === 0,
+      })),
+    }));
+    await page.route('**/api/products?**', (route) =>
+      route.fulfill({
+        json: { products: collection, total: 2, offset: 0, limit: 24 },
+      }),
+    );
+    await page.goto(`/${brand}/category/all-products`);
+    await expect(page.locator('.shop-product-card')).toHaveCount(2);
+    const trigger = page.getByRole('button', {
+      name: 'Filter & Sort',
+      exact: true,
+    });
+    if (info.project.name !== 'mobile') {
+      await expect(trigger).toBeHidden();
+      await expect(page.locator('.filters')).toBeVisible();
+      await expect(page.getByLabel('Sort by')).toBeVisible();
+      continue;
+    }
+    await expect(page.locator('.filters')).toBeHidden();
+    await expect(page.getByLabel('Sort by')).toBeHidden();
+    await expect(page.locator('.compact-mobile-filter-status')).toContainText(
+      '2 Items',
+    );
+    await page.screenshot({
+      path: `test-results/${brand}-compact-filters-listing.png`,
+    });
+    await page.getByRole('switch', { name: 'In-Stock' }).check();
+    await expect(page.locator('.compact-mobile-filter-status')).toContainText(
+      '1 Items',
+    );
+    await trigger.click();
+    const dialog = page.getByRole('dialog', { name: 'Filter & Sort' });
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByRole('switch', { name: 'In-Stock' }),
+    ).toBeChecked();
+    await expect(dialog.locator('details[open]')).toHaveCount(0);
+    await dialog.getByRole('switch', { name: 'In-Stock' }).uncheck();
+    await expect(
+      dialog.getByRole('button', { name: 'View 2 ITEMS', exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: `test-results/${brand}-compact-filters-dialog.png`,
+    });
+    for (const name of ['Price:(High to Low)', 'Customer Ratings', 'Newest']) {
+      await dialog.getByRole('radio', { name, exact: true }).check();
+      await expect(page.locator('.shop-product-card').first()).toContainText(
+        'Connected Sofa',
+      );
+    }
+    await dialog
+      .getByRole('radio', { name: 'Price:(Low to High)', exact: true })
+      .check();
+    await expect(page.locator('.shop-product-card').first()).toContainText(
+      'Connected Chair',
+    );
+    await dialog
+      .locator('summary')
+      .filter({ hasText: /^Type$/ })
+      .click();
+    await dialog.getByLabel('Chairs', { exact: true }).check();
+    await dialog
+      .getByRole('button', { name: 'View 1 ITEMS', exact: true })
+      .click();
+    await expect(dialog).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+    await expect(page.locator('.shop-product-card')).toHaveCount(1);
+    await trigger.click();
+    await dialog
+      .getByRole('button', { name: 'Clear All', exact: true })
+      .click();
+    await expect(
+      dialog.getByRole('radio', { name: 'Recommended', exact: true }),
+    ).toBeChecked();
+    await dialog
+      .locator('summary')
+      .filter({ hasText: /^Price$/ })
+      .click();
+    if (brand === 'gr')
+      await dialog.getByRole('slider', { name: 'Minimum price' }).fill('600');
+    else
+      await dialog
+        .getByRole('radio', { name: '$500 and over', exact: true })
+        .check();
+    await expect(
+      dialog.getByRole('button', { name: 'View 1 ITEMS', exact: true }),
+    ).toBeVisible();
+    await expect(page.locator('.shop-product-card').first()).toContainText(
+      'Connected Sofa',
+    );
+    await dialog
+      .getByRole('button', { name: 'Clear All', exact: true })
+      .click();
+    await expect(
+      dialog.getByRole('button', { name: 'View 2 ITEMS', exact: true }),
+    ).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    expect(await page.evaluate(() => document.body.style.overflow)).not.toBe(
+      'hidden',
+    );
+    await trigger.click();
+    await dialog.getByRole('button', { name: 'Close filter and sort' }).click();
+    await trigger.click();
+    await page.setViewportSize({ width: 320, height: 568 });
+    await expect(
+      dialog.getByRole('button', { name: 'View 2 ITEMS' }),
+    ).toBeInViewport();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBe(320);
+    await page.setViewportSize({ width: 1000, height: 900 });
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByLabel('Sort by')).toBeVisible();
+    await page.setViewportSize({ width: 390, height: 844 });
+  }
+});
+
+test('FG mini cart keeps Frontgate colors and supports header navigation with items', async ({
+  page,
+}, info) => {
+  await page.goto(`/fg/product/${products('fg')[0].id}`);
+  await page.getByRole('button', { name: 'ADD TO CART', exact: true }).click();
+  const cart = page.getByRole('dialog', { name: 'In Your Bag (1)' });
+  await expect(cart).toContainText('FG Connected Chair');
+  await expect(
+    cart.getByRole('link', { name: 'View Bag', exact: true }),
+  ).toHaveCSS('background-color', 'rgb(37, 37, 37)');
+  await page.keyboard.press('Escape');
+  const icon = page.getByRole('link', { name: 'Open shopping bag, 1 items' });
+  if (info.project.name === 'desktop') {
+    await icon.hover();
+    await expect(cart).toBeVisible();
+    await expect(cart).toHaveAttribute('popover', 'auto');
+    await expect(cart).toContainText('FG Connected Chair');
+    await cart.screenshot({ path: 'test-results/fg-mini-cart-preview.png' });
+    await icon.click();
+  } else await icon.tap();
+  await expect(page).toHaveURL(/\/fg\/cart$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('.bag-item')).toContainText('FG Connected Chair');
+});
+
+test('FG follows GR layout geometry while retaining Frontgate branding and controls', async ({
+  page,
+}, info) => {
+  const layouts: Record<string, unknown> = {};
+  for (const brand of ['gr', 'fg'] as const) {
+    await page.goto(`/${brand}`);
+    await expect(page.locator('.shop-product-card')).toHaveCount(2);
+    const home = await page.evaluate(() => {
+      const header = getComputedStyle(document.querySelector('.brand-header')!);
+      const hero = getComputedStyle(document.querySelector('.home-hero')!);
+      const copy = document
+        .querySelector('.hero-copy')!
+        .getBoundingClientRect();
+      const photo = document
+        .querySelector('.hero-photograph')!
+        .getBoundingClientRect();
+      return {
+        headerColumns: header.gridTemplateColumns,
+        headerGap: header.gap,
+        headerPadding: header.padding,
+        heroHeight: innerWidth > 800 ? hero.height : 'auto',
+        copyOnLeft: copy.left < photo.left,
+        copyBelowPhoto: copy.top >= photo.bottom,
+      };
+    });
+    if (brand === 'fg') {
+      await expect(page.locator('.hero-copy h1')).toContainText(
+        'extraordinary',
+      );
+      await expect(
+        page.getByRole('banner').getByRole('link', { name: 'Frontgate home' }),
+      ).toBeVisible();
+      await expect(page.locator('.brand-app')).toHaveAttribute(
+        'data-brand',
+        'fg',
+      );
+      await expect(page.locator('.brand-app')).toHaveCSS(
+        'font-family',
+        'Arial, Helvetica, sans-serif',
+      );
+      await expect(page.locator('.brand-app')).toHaveCSS(
+        'color',
+        'rgb(37, 37, 37)',
+      );
+      await expect(
+        page.locator('.production-navigation').first(),
+      ).toContainText('TABLETOP & ENTERTAINING');
+      await expect(page.locator('.production-subnavigation')).toHaveCount(0);
+      await screenshot(page, 'fg-gr-layout-home', info.project.name);
+    }
+    await page.goto(`/${brand}/category/all-products`);
+    await expect(page.locator('.shop-product-card')).toHaveCount(2);
+    const catalog = await page.evaluate(() => {
+      const container = getComputedStyle(
+        document.querySelector('.category-page')!,
+      );
+      const layout = getComputedStyle(
+        document.querySelector('.catalog-layout')!,
+      );
+      const grid = getComputedStyle(
+        document.querySelector('.catalog-results .shop-grid')!,
+      );
+      const content = getComputedStyle(
+        document.querySelector('.catalog-results .card-content')!,
+      );
+      return {
+        width: container.width,
+        padding: container.padding,
+        columns: layout.gridTemplateColumns,
+        gap: layout.gap,
+        productColumns: grid.gridTemplateColumns,
+        productGap: grid.gap,
+        alignment: content.textAlign,
+      };
+    });
+    if (brand === 'fg') {
+      await expect(page.locator('.shop-product-card').first()).toContainText(
+        'FG Connected Chair',
+      );
+      await expect(page.locator('.filters')).toContainText('All prices');
+      await expect(page.locator('.gr-stock-filter')).toHaveCount(0);
+      await expect(
+        page.locator('.catalog-toolbar select option').first(),
+      ).toHaveText('Featured');
+      await screenshot(page, 'fg-gr-layout-catalog', info.project.name);
+    }
+    await page.goto(`/${brand}/product/${products(brand)[0].id}`);
+    await expect(page.locator('.product-info-panel h1')).toBeVisible();
+    const pdp = await page.evaluate(() => {
+      const container = getComputedStyle(document.querySelector('.pdp-page')!);
+      const layout = getComputedStyle(document.querySelector('.pdp-layout')!);
+      const gallery = getComputedStyle(
+        document.querySelector('.product-gallery')!,
+      );
+      const thumbnails = getComputedStyle(
+        document.querySelector('.gallery-thumbnails')!,
+      );
+      const thumbnail = document
+        .querySelector('.gallery-thumbnails button')!
+        .getBoundingClientRect();
+      return {
+        width: container.width,
+        padding: container.padding,
+        columns: layout.gridTemplateColumns,
+        gap: layout.gap,
+        galleryColumns: gallery.gridTemplateColumns,
+        galleryGap: gallery.gap,
+        thumbnailsDirection: thumbnails.flexDirection,
+        thumbnailsGap: thumbnails.gap,
+        thumbnailsPadding: thumbnails.padding,
+        thumbnailWidth: thumbnail.width,
+        thumbnailHeight: thumbnail.height,
+      };
+    });
+    if (brand === 'fg') {
+      await expect(page.locator('.tile-options')).toBeVisible();
+      await expect(page.locator('.color-option-panel')).toHaveCount(0);
+      await expect(
+        page.getByRole('button', { name: 'ADD TO CART', exact: true }),
+      ).toHaveCSS('background-color', 'rgb(37, 37, 37)');
+      await expect(page.locator('.product-heading-row h1')).toHaveCSS(
+        'font-family',
+        'Arial, Helvetica, sans-serif',
+      );
+      await expect(page.locator('.product-heading-row h1')).toHaveText(
+        'FG Connected Chair',
+      );
+      await expect(page.locator('.sku')).toContainText('CHAIR-IVORY');
+      await screenshot(page, 'fg-gr-layout-pdp', info.project.name);
+    }
+    layouts[brand] = { home, catalog, pdp };
+  }
+  expect(layouts.fg).toEqual(layouts.gr);
 });
 
 test('legacy demo remains isolated from storefront brands', async ({

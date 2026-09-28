@@ -5,8 +5,10 @@ import { GarnetHillProductInfo } from './containers/universal-pdp/ProductInfo';
 import { GarnetHillProductDetails } from './containers/universal-pdp/ProductDetails';
 import { GarnetHillProductGallery } from './containers/universal-pdp/ProductGallery';
 import { GarnetHillFooter } from './containers/universal-footer/container';
+import { MobileFilterSort } from './containers/product-list/MobileFilterSort';
 
 export const garnethillComponents = {
+  MobileCatalogFilters: MobileFilterSort,
   Header: GarnetHillHeader,
   Footer: GarnetHillFooter,
   Home: GarnetHillHome,

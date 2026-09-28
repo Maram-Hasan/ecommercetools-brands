@@ -10,8 +10,10 @@ import type { HeaderProps } from '../universal-header/container';
 import type { ProductInfoProps } from '../universal-pdp/usePurchase';
 import type { ShopProduct } from '../../models/product';
 import type { ProductGalleryProps } from '../universal-pdp/partials/ProductGallery';
+import type { MobileFilterProps } from '../product-list/mobile-filters';
 
 export interface BrandComponents {
+  MobileCatalogFilters?: ComponentType<MobileFilterProps>;
   Header: ComponentType<HeaderProps>;
   Footer: ComponentType;
   Home: ComponentType;

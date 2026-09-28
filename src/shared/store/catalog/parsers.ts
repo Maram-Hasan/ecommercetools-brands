@@ -3,6 +3,8 @@ import type { ShopProduct } from '../../models/product.js';
 import { visualOption } from '../../models/product-options.js';
 export function normalizeProduct(product: Product): ShopProduct {
   return {
+    badges: product.badges ?? [],
+    catalogSort: product.catalogSort,
     id: product.id,
     key: product.key,
     slug: product.slug,

@@ -8,14 +8,43 @@
   min-width: 0;
 }
 
-.brand-app .product-badge {
+.brand-app .product-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.brand-app .card-badges {
+  flex-direction: column;
+}
+
+.brand-app .card-visual > .product-badges {
   position: absolute;
   top: 13px;
   left: 12px;
+  right: 12px;
+  pointer-events: none;
+}
+
+.brand-app .product-badge {
+  max-width: 100%;
+  overflow-wrap: anywhere;
   padding: 5px 8px;
   background: #ffffffe6;
   font-size: 8px;
   letter-spacing: 0.07em;
+}
+
+.brand-app .product-info-panel .product-badges {
+  margin: 12px 0 16px;
+}
+
+.brand-app .product-info-panel .product-badge {
+  background: var(--wash);
+  color: var(--ink);
+  font-size: 12px;
 }
 
 .brand-app .card-visual {

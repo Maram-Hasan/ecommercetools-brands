@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { useBrandComponents } from '../app/composition';
+import type { MobileFacet } from './mobile-filters';
 import { useBrand } from '../../store/brand/context';
 import { Link } from '../app/router';
 import { useCatalog } from '../../store/catalog/provider';
@@ -11,6 +13,7 @@ import { ProductGrid } from '../../components/product-card/index';
 
 export function Category({ slug, search }: { slug: string; search: string }) {
   const brand = useBrand();
+  const { MobileCatalogFilters } = useBrandComponents();
   const { products, categories, loading, error, reload } = useCatalog();
   const query = new URLSearchParams(search).get('q') ?? '';
   const category = categories.find(
@@ -178,6 +181,18 @@ export function Category({ slug, search }: { slug: string; search: string }) {
       );
     });
     if (sort === 'name') result.sort((a, b) => a.name.localeCompare(b.name));
+    if (sort === 'new')
+      result.sort(
+        (a, b) =>
+          (Date.parse(b.catalogSort?.createdAt ?? '') || 0) -
+          (Date.parse(a.catalogSort?.createdAt ?? '') || 0),
+      );
+    if (sort === 'top' || sort === 'rating')
+      result.sort(
+        (a, b) =>
+          (b.catalogSort?.rating ?? 0) - (a.catalogSort?.rating ?? 0) ||
+          (b.catalogSort?.reviewCount ?? 0) - (a.catalogSort?.reviewCount ?? 0),
+      );
     if (sort === 'low' || sort === 'high')
       result.sort((a, b) => {
         const first = a.variants[0]?.price;
@@ -218,8 +233,66 @@ export function Category({ slug, search }: { slug: string; search: string }) {
     setSelectedAttributes({});
     setOffset(0);
   }
+  const mobileFacets: MobileFacet[] = [
+    {
+      name: 'Category',
+      choices: availableCategories.map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
+      selected: selectedCategories,
+      onChange: (value) => {
+        setSelectedCategories((old) =>
+          old.includes(value)
+            ? old.filter((item) => item !== value)
+            : [...old, value],
+        );
+        setOffset(0);
+      },
+    },
+    ...['Size', 'Color', 'Material'].map((name) => ({
+      name,
+      choices: (
+        attributeFacets.find((facet) => facet.name === name)?.values ?? []
+      ).map(({ value, count, swatch }) => ({
+        value,
+        label: `${value} (${count})`,
+        swatch,
+      })),
+      selected: selectedAttributes[name.toLowerCase()] ?? [],
+      onChange: (value: string) => {
+        setSelectedAttributes((old) => {
+          const key = name.toLowerCase();
+          const values = old[key] ?? [];
+          return {
+            ...old,
+            [key]: values.includes(value)
+              ? values.filter((item) => item !== value)
+              : [...values, value],
+          };
+        });
+        setOffset(0);
+      },
+    })),
+    {
+      name: 'Price',
+      choices: [
+        { value: 'all', label: 'All prices' },
+        { value: 'under500', label: `Under ${threshold}` },
+        { value: 'over500', label: `${threshold} and over` },
+      ],
+      selected: [price],
+      type: 'radio',
+      onChange: (value) => {
+        setPrice(value);
+        setOffset(0);
+      },
+    },
+  ];
   return (
-    <div className="page-width category-page">
+    <div
+      className={`page-width category-page${brand.key !== 'gh' ? ' compact-category-page' : ''}`}
+    >
       <Breadcrumbs items={[{ label: title }]} />
       <div className="category-intro without-image">
         <div>
@@ -493,15 +566,66 @@ export function Category({ slug, search }: { slug: string; search: string }) {
         </aside>
         <section className="catalog-results" aria-label="Products">
           <div
-            className={`catalog-toolbar${refined ? ' gr-catalog-toolbar' : ''}`}
+            className={`catalog-toolbar${refined ? ' gr-catalog-toolbar' : ''}${brand.key !== 'gh' ? ' compact-catalog-toolbar' : ''}`}
           >
-            <button
-              className="filter-toggle button secondary"
-              aria-expanded={filtersOpen}
-              onClick={() => setFiltersOpen(!filtersOpen)}
-            >
-              Filters {filtersOpen ? '−' : '+'}
-            </button>
+            {MobileCatalogFilters ? (
+              <MobileCatalogFilters
+                sort={sort}
+                onSort={(value) => {
+                  setSort(value);
+                  setOffset(0);
+                }}
+                facets={mobileFacets}
+                count={filtered.length}
+                stock={{
+                  selected: inStockOnly,
+                  onChange: (value) => {
+                    setInStockOnly(value);
+                    setOffset(0);
+                  },
+                }}
+                priceRange={
+                  refined
+                    ? {
+                        ...priceExtent,
+                        lower: minimumPrice ?? priceExtent.minimum,
+                        upper: maximumPrice ?? priceExtent.maximum,
+                        currency,
+                        onMinimum: (value) => {
+                          setMinimumPrice(
+                            Math.min(
+                              value,
+                              maximumPrice ?? priceExtent.maximum,
+                            ),
+                          );
+                          setOffset(0);
+                        },
+                        onMaximum: (value) => {
+                          setMaximumPrice(
+                            Math.max(
+                              value,
+                              minimumPrice ?? priceExtent.minimum,
+                            ),
+                          );
+                          setOffset(0);
+                        },
+                      }
+                    : undefined
+                }
+                onReset={() => {
+                  reset();
+                  setSort('featured');
+                }}
+              />
+            ) : (
+              <button
+                className="filter-toggle button secondary"
+                aria-expanded={filtersOpen}
+                onClick={() => setFiltersOpen(!filtersOpen)}
+              >
+                Filters {filtersOpen ? '−' : '+'}
+              </button>
+            )}
             {faceted && (
               <div className="catalog-page-status">
                 <button
@@ -547,6 +671,15 @@ export function Category({ slug, search }: { slug: string; search: string }) {
                 <option value="low">Price: Low to High</option>
                 <option value="high">Price: High to Low</option>
                 <option value="name">Name: A to Z</option>
+                {['new', 'top', 'rating'].includes(sort) && (
+                  <option value={sort}>
+                    {sort === 'new'
+                      ? 'New Arrival'
+                      : sort === 'top'
+                        ? 'Top Rated'
+                        : 'Rating: High to Low'}
+                  </option>
+                )}
               </select>
             </label>
             <button

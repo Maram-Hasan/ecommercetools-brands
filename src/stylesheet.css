@@ -23,3 +23,5 @@
 @import './frontgate/stylesheet.css';
 @import './grandin/stylesheet.css';
 @import './garnethill/stylesheet.css';
+@import './shared/containers/product-list/compact-mobile-filters.css';
+@import './shared/containers/universal-pdp/responsive-gallery.css';

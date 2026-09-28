@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { ShopProduct, ShopVariant } from '../../models/product';
 import { useCart } from '../../store/cart/provider';
 
 export interface ProductSelectionProps {
+  mobileGallery?: ReactNode;
   product: ShopProduct;
   selected: number;
   onSelect: (id: number) => void;

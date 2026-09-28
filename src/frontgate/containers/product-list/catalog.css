@@ -1,0 +1,177 @@
+/* Match GR's columns and spacing without replacing Frontgate's filters. */
+.brand-app[data-brand='fg'] .category-page {
+  width: 100%;
+  max-width: 1440px;
+  padding: 0 44px 72px;
+}
+
+.brand-app[data-brand='fg'] .category-intro {
+  padding: 0 0 13px;
+}
+
+.brand-app[data-brand='fg'] .category-intro > div {
+  max-width: none;
+  padding: 0;
+}
+
+.brand-app[data-brand='fg'] .category-intro h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.25;
+}
+
+.brand-app[data-brand='fg'] .catalog-layout {
+  grid-template-columns: 206px minmax(0, 1fr);
+  gap: 38px;
+}
+
+.brand-app[data-brand='fg'] .filter-heading {
+  min-height: 52px;
+  padding: 0;
+}
+
+.brand-app[data-brand='fg'] .filter-heading h2 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.brand-app[data-brand='fg'] .filters details {
+  padding: 0 0 15px;
+}
+
+.brand-app[data-brand='fg'] .filters summary {
+  min-height: 42px;
+  margin: 0;
+  padding-block: 8px;
+  font-size: 17px;
+}
+
+.brand-app[data-brand='fg'] .filters .check-row {
+  display: flex;
+  align-items: flex-start;
+  min-height: 31px;
+  gap: 7px;
+  font-size: 15px;
+  line-height: 1.15;
+}
+
+.brand-app[data-brand='fg'] .filters .check-row input {
+  width: 16px;
+  height: 16px;
+  margin: 1px 0 0;
+}
+
+.brand-app[data-brand='fg'] .catalog-toolbar {
+  min-height: 52px;
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.brand-app[data-brand='fg'] .catalog-toolbar label {
+  min-width: 240px;
+  min-height: 35px;
+  margin-left: auto;
+  padding-left: 15px;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.brand-app[data-brand='fg'] .catalog-toolbar select {
+  flex: 1;
+  min-height: 33px;
+  padding: 0 30px 0 0;
+  font-size: 12px;
+}
+
+.brand-app[data-brand='fg'] .catalog-results .shop-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 48px 16px;
+}
+
+.brand-app[data-brand='fg'] .catalog-results .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 9px 0 0;
+  text-align: left;
+}
+
+.brand-app[data-brand='fg'] .catalog-results .card-content h3 {
+  margin: 0 0 7px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.brand-app[data-brand='fg'] .catalog-results .card-content .shop-price {
+  justify-content: flex-start;
+  padding: 0;
+  font-size: 15px;
+}
+
+.brand-app[data-brand='fg'] .catalog-results .card-swatches {
+  order: -1;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 9px;
+}
+
+.brand-app[data-brand='fg'] .catalog-results .card-swatches button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.brand-app[data-brand='fg'] .catalog-results .more-swatches {
+  align-self: center;
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .brand-app[data-brand='fg'] .category-page {
+    padding-inline: 24px;
+  }
+
+  .brand-app[data-brand='fg'] .catalog-layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .brand-app[data-brand='fg'] .catalog-results .shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .brand-app[data-brand='fg'] .category-page {
+    padding-inline: 16px;
+  }
+
+  .brand-app[data-brand='fg'] .category-intro h1 {
+    font-size: 27px;
+  }
+
+  .brand-app[data-brand='fg'] .catalog-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .brand-app[data-brand='fg'] .filters.is-open {
+    padding: 16px;
+  }
+
+  .brand-app[data-brand='fg'] .catalog-toolbar label {
+    min-width: 190px;
+  }
+}
+
+@media (max-width: 560px) {
+  .brand-app[data-brand='fg'] .catalog-results .shop-grid {
+    gap: 30px 12px;
+  }
+
+  .brand-app[data-brand='fg'] .catalog-results .card-content h3 {
+    font-size: 14px;
+  }
+}
