@@ -8,11 +8,16 @@ import type { BrandConfig } from '../../../../shared/brands';
 import { useBrand } from '../../store/brand/context';
 import type { HeaderProps } from '../universal-header/container';
 import type { ProductInfoProps } from '../universal-pdp/usePurchase';
+import type { ShopProduct } from '../../models/product';
+import type { ProductGalleryProps } from '../universal-pdp/partials/ProductGallery';
 
 export interface BrandComponents {
   Header: ComponentType<HeaderProps>;
+  Footer: ComponentType;
   Home: ComponentType;
+  ProductGallery: ComponentType<ProductGalleryProps>;
   ProductInfo: ComponentType<ProductInfoProps>;
+  ProductDetailsContent: ComponentType<{ product: ShopProduct }>;
 }
 export type BrandCompositions = Record<BrandConfig['key'], BrandComponents>;
 const Context = createContext<BrandComponents | null>(null);

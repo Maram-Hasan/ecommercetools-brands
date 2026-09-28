@@ -74,6 +74,9 @@ export function SiteHeader({
             </button>
             <button
               onClick={openCart}
+              onPointerEnter={(event) => {
+                if (event.pointerType === 'mouse') openCart();
+              }}
               className="cart-action"
               aria-label={`Open shopping bag, ${quantity} items`}
             >

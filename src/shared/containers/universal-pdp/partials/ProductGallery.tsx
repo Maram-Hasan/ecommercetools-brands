@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { ProductImage } from '../../../components/product-image/index';
 import { Modal } from '../../../components/primitives/index';
 
-export function ProductGallery({
-  images,
-  name,
-}: {
+export interface ProductGalleryProps {
   images: string[];
   name: string;
-}) {
+}
+
+export function ProductGallery({ images, name }: ProductGalleryProps) {
   const [index, setIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
   return (

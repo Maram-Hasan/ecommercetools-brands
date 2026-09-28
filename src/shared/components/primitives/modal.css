@@ -29,7 +29,7 @@
 .brand-app .shop-modal.navigation-drawer {
   height: 100dvh;
   max-height: 100dvh;
-  width: min(510px, 100%);
+  width: min(535px, 100%);
   margin: 0 0 0 auto;
 }
 .brand-app .shop-modal.navigation-drawer {
@@ -37,7 +37,7 @@
   margin: 0 auto 0 0;
 }
 .brand-app[data-minicart='compact'] .shop-modal.drawer {
-  width: min(445px, 100%);
+  width: min(535px, 100%);
 }
 .brand-app .info-content {
   display: grid;

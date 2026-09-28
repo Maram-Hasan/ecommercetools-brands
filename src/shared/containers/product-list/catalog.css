@@ -105,10 +105,44 @@
 }
 
 .brand-app .loading-card {
-  height: 330px;
+  min-width: 0;
+}
+
+.brand-app .loading-surface {
   background: linear-gradient(110deg, #f2f1ec 30%, #faf9f6 50%, #f2f1ec 70%);
   background-size: 200% 100%;
   animation: loading-sweep 1.5s infinite;
+}
+
+.brand-app .loading-card-image {
+  aspect-ratio: 4 / 5;
+}
+
+.brand-app .loading-card-swatches {
+  display: flex;
+  gap: 5px;
+  margin: 9px 0;
+}
+
+.brand-app .loading-card-swatches span {
+  width: 28px;
+  height: 28px;
+}
+
+.brand-app .loading-card-line {
+  width: 72%;
+  height: 13px;
+  margin-top: 8px;
+}
+
+.brand-app .loading-card-line.short {
+  width: 34%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-app .loading-surface {
+    animation: none;
+  }
 }
 
 @media (max-width: 1100px) {

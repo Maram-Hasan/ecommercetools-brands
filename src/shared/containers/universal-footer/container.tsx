@@ -42,6 +42,7 @@ export function SiteFooter() {
           <h2>{brand.footer.heading}</h2>
           <p>{brand.footer.description}</p>
           <form
+            aria-label={`${brand.displayName} email updates`}
             onSubmit={(e) => {
               e.preventDefault();
               setSubscribed(true);

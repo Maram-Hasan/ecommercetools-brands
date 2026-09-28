@@ -131,10 +131,11 @@ export const gh: BrandConfig = {
   catalog: {
     title: 'All Products',
     description: 'Discover the collection for your home and for you.',
+    layout: 'faceted',
   },
   minicart: 'compact',
   pdp: {
-    purchase: 'tiles',
+    purchase: 'options',
     addLabel: 'ADD TO BAG',
     primary: '#716b61',
     accent: '#716b61',

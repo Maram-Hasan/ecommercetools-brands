@@ -1,0 +1,33 @@
+.brand-app[data-brand='gh'] .breadcrumbs {
+  padding-block: 10px 13px;
+  color: #272727;
+  font-size: 13px;
+  line-height: 1.5;
+  gap: 9px;
+}
+
+.brand-app[data-brand='gh'] .breadcrumbs > span {
+  gap: 9px;
+  min-width: 0;
+}
+
+.brand-app[data-brand='gh'] .breadcrumbs [aria-current] {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.brand-app[data-brand='gh'] .breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+  .brand-app[data-brand='gh'] .breadcrumbs {
+    padding-block: 10px 13px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .brand-app[data-brand='gh'] .breadcrumbs > span {
+    gap: 6px;
+  }
+}

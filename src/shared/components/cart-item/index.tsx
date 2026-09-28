@@ -4,7 +4,7 @@ import { formatPrice } from '../../utils/money';
 import { ProductImage } from '../product-image/index';
 import type { ShopCartItem } from '../../models/cart';
 import { useCart } from '../../store/cart/provider';
-import { QuantitySelector } from '../primitives/index';
+import { Icon, QuantitySelector } from '../primitives/index';
 
 export function CartItem({
   item,
@@ -28,24 +28,40 @@ export function CartItem({
         <Link href={href} onClick={onNavigate}>
           <h3>{item.name}</h3>
         </Link>
-        <p>{item.sku || 'Selected option'}</p>
-        <span className="bag-unit-price">{formatPrice(item.price)} each</span>
+        {compact ? (
+          <>
+            <p className="mini-cart-quantity">Qty: {item.quantity}</p>
+            <span className="bag-unit-price">{formatPrice(item.price)}</span>
+          </>
+        ) : (
+          <>
+            <p>{item.sku || 'Selected option'}</p>
+            <span className="bag-unit-price">
+              {formatPrice(item.price)} each
+            </span>
+          </>
+        )}
         <div className="bag-item-controls">
-          <QuantitySelector
-            value={item.quantity}
-            disabled={disabled}
-            onChange={(quantity) => void update(item.id, quantity)}
-          />
+          {!compact && (
+            <QuantitySelector
+              value={item.quantity}
+              disabled={disabled}
+              onChange={(quantity) => void update(item.id, quantity)}
+            />
+          )}
           <button
             className="text-button"
             disabled={disabled}
             onClick={() => void remove(item.id)}
           >
+            {compact && <Icon name="trash" size={15} />}
             Remove
           </button>
         </div>
       </div>
-      <strong className="bag-line-total">{formatPrice(item.total)}</strong>
+      {!compact && (
+        <strong className="bag-line-total">{formatPrice(item.total)}</strong>
+      )}
     </article>
   );
 }

@@ -2,7 +2,7 @@
   .brand-app[data-purchase] .pdp-page {
     padding-inline: 16px;
   }
-  .brand-app[data-purchase] .pdp-page .breadcrumbs {
+  .brand-app[data-purchase] :where(.pdp-page) .breadcrumbs {
     font-size: 10px;
   }
   .brand-app[data-purchase] .pdp-layout {

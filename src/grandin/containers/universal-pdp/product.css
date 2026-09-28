@@ -7,14 +7,6 @@
   max-width: 1440px;
 }
 
-.brand-app[data-brand='gr'] .pdp-page .breadcrumbs {
-  padding-block: 12px;
-}
-
-.brand-app[data-brand='gr'] .pdp-page .breadcrumbs > span {
-  gap: 8px;
-}
-
 .brand-app[data-brand='gr'] .pdp-layout {
   gap: 26px;
   padding-top: 4px;
@@ -167,9 +159,6 @@
 }
 
 @media (max-width: 700px) {
-  .brand-app[data-brand='gr'] .pdp-page .breadcrumbs {
-    padding-block: 10px;
-  }
   .brand-app[data-brand='gr'] .pdp-layout {
     gap: 20px;
   }

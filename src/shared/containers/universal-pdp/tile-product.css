@@ -1,4 +1,4 @@
-/* Shared variant-purchase layout for FG and GH; brand overrides live separately. */
+/* Tile variant presentation; selected through brand composition. */
 .brand-app[data-purchase='tiles'] .pdp-page {
   max-width: 1600px;
   padding-inline: 30px;

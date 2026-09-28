@@ -1,4 +1,4 @@
-.brand-app[data-purchase] .pdp-page .breadcrumbs {
+.brand-app[data-purchase] :where(.pdp-page) .breadcrumbs {
   font-size: 11px;
   gap: var(--space-sm);
 }

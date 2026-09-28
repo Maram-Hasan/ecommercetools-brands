@@ -1,20 +1,85 @@
+.brand-app .shop-modal.drawer .modal-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+}
+.brand-app .shop-modal.drawer .modal-heading {
+  flex: 0 0 auto;
+  min-height: 71px;
+  margin: 0;
+  padding: 20px;
+}
+.brand-app .shop-modal.drawer .modal-heading h2 {
+  font-size: 22px;
+  font-weight: 400;
+}
+.brand-app .shop-modal.drawer .modal-heading .icon-button {
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+}
+.brand-app .shop-modal.drawer .cart-status {
+  padding-inline: 20px;
+}
+.brand-app .mini-cart-items {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 20px 0;
+}
 .brand-app .mini-cart-bottom {
+  flex: 0 0 auto;
+  padding: 0 20px 20px;
   background: #fff;
-  padding-top: 25px;
+  box-shadow: 0 -7px 17px #0000000c;
 }
-
-.brand-app .mini-cart-bottom > p {
-  font-size: 11px;
-  color: var(--muted);
-  margin: 10px 0 20px;
+.brand-app .mini-cart-shipping-note {
+  margin: 0 -20px 20px;
+  padding: 18px 20px 0;
+  color: #68635d;
+  font-size: 14px;
+  font-style: italic;
 }
-
+.brand-app .mini-cart-bottom .summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 22px;
+  font: 400 21px/1.3 var(--font-heading);
+}
 .brand-app .mini-cart-bottom .button {
-  margin-bottom: 12px;
+  min-height: 60px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.brand-app .mini-cart-bottom .button:not(.secondary) {
+  border-color: #3d699d;
+  background: #3d699d;
+}
+.brand-app .mini-cart-bottom .continue-shopping {
+  margin-bottom: 0;
+  border-color: #222;
+  color: #222;
+  background: white;
 }
 
-.brand-app .mini-cart-bottom > .text-button {
-  display: block;
-  margin: 12px auto;
-  font-size: 11px;
+@media (max-width: 480px) {
+  .brand-app .shop-modal.drawer .modal-heading {
+    min-height: 62px;
+    padding: 15px 16px;
+  }
+  .brand-app .mini-cart-items {
+    padding-inline: 16px;
+  }
+  .brand-app .mini-cart-bottom {
+    padding-inline: 16px;
+  }
+  .brand-app .mini-cart-shipping-note {
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
 }

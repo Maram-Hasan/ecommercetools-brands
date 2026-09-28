@@ -12,13 +12,10 @@ export function MiniCart() {
   const ready = !loadError && !loading;
   return (
     <Modal
-      title={`Your Bag (${cart.quantity})`}
+      title={`In Your Bag (${cart.quantity})`}
       variant="drawer"
       onClose={() => setOpen(false)}
     >
-      <p className="sample-note">
-        Your current store bag. Checkout remains a demo.
-      </p>
       <CartStatus />
       {cart.items.length ? (
         <>
@@ -33,28 +30,25 @@ export function MiniCart() {
             ))}
           </div>
           <div className="mini-cart-bottom">
+            <p className="mini-cart-shipping-note">
+              Taxes and shipping calculated at checkout
+            </p>
             <div className="summary-line">
-              <strong>Subtotal</strong>
-              <strong>{formatPrice(cart.total)}</strong>
+              <span>Subtotal</span>
+              <span>{formatPrice(cart.total)}</span>
             </div>
-            <p>Shipping and tax calculated later.</p>
             <Link
-              className="button secondary full"
+              className="button full"
               href={`${brand.route}/cart`}
               onClick={() => setOpen(false)}
             >
               View Bag
             </Link>
-            {ready && !busy && (
-              <Link
-                className="button full"
-                href={`${brand.route}/checkout`}
-                onClick={() => setOpen(false)}
-              >
-                Checkout <Icon name="arrow" size={18} />
-              </Link>
-            )}
-            <button className="text-button" onClick={() => setOpen(false)}>
+            <button
+              className="button secondary full continue-shopping"
+              disabled={!ready || busy}
+              onClick={() => setOpen(false)}
+            >
               Continue Shopping
             </button>
           </div>

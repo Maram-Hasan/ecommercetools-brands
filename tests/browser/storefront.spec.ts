@@ -188,7 +188,7 @@ for (const brand of ['fg', 'gr', 'gh'] as const) {
     page,
   }, info) => {
     const product = products(brand)[0];
-    const addButton = brand === 'gh' ? 'ADD TO BAG' : 'ADD TO CART';
+    const addButton = brand === 'gh' ? 'Add To Bag' : 'ADD TO CART';
     const mutations: string[] = [];
     page.on('request', (request) => {
       if (request.url().includes('/api/') && request.method() !== 'GET')
@@ -206,14 +206,37 @@ for (const brand of ['fg', 'gr', 'gh'] as const) {
     );
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: 'Filters +' }).click();
+    if (brand === 'gh')
+      await page
+        .locator('.gh-departments details')
+        .filter({ hasText: 'Chairs' })
+        .locator('summary')
+        .click();
     await page.getByLabel('Chairs', { exact: true }).check();
     await expect(page.locator('.shop-product-card')).toHaveCount(1);
-    await page.getByRole('button', { name: 'Clear all', exact: true }).click();
+    if (brand === 'gh' || brand === 'gr')
+      await page.getByLabel('Chairs', { exact: true }).uncheck();
+    else
+      await page
+        .getByRole('button', { name: 'Clear all', exact: true })
+        .click();
     await page.getByLabel('Sort by').selectOption('high');
     await expect(page.locator('.shop-product-card').first()).toContainText(
       'Connected Sofa',
     );
     await screenshot(page, brand + '-category', info.project.name);
+    if (brand === 'gh' && info.project.name === 'desktop') {
+      const container = await page.locator('.category-page').boundingBox();
+      const productImage = await page
+        .locator('.shop-product-card .card-visual')
+        .first()
+        .boundingBox();
+      expect(container).not.toBeNull();
+      expect(productImage).not.toBeNull();
+      expect(container!.x).toBeGreaterThan(0);
+      expect(container!.width).toBeLessThanOrEqual(1240);
+      expect(productImage!.width).toBeLessThanOrEqual(325);
+    }
     await page.goto(`/${brand}/product/${product.id}`);
     await expect(
       page.getByRole('heading', { name: product.name, exact: true }),
@@ -224,12 +247,19 @@ for (const brand of ['fg', 'gr', 'gh'] as const) {
     await expect(page.locator('.product-info-panel del')).toContainText(
       '$449.00',
     );
-    await page
-      .getByRole('button', { name: 'Choose Unpriced', exact: true })
-      .click();
-    await expect(
-      page.getByRole('button', { name: addButton, exact: true }),
-    ).toBeDisabled();
+    const unpricedOption = page.getByRole('button', {
+      name: 'Choose Unpriced',
+      exact: true,
+    });
+    if (brand === 'gh') {
+      await expect(unpricedOption).toBeDisabled();
+      await expect(unpricedOption).toHaveClass(/gh-option-unavailable/);
+    } else {
+      await unpricedOption.click();
+      await expect(
+        page.getByRole('button', { name: addButton, exact: true }),
+      ).toBeDisabled();
+    }
     await page
       .getByRole('button', { name: 'Choose Walnut', exact: true })
       .click();
@@ -238,14 +268,21 @@ for (const brand of ['fg', 'gr', 'gh'] as const) {
     );
     await screenshot(page, brand + '-pdp', info.project.name);
     await page.getByRole('button', { name: 'Increase quantity' }).click();
-    await expect(
-      page.getByRole('status', { name: 'Product total' }),
-    ).toHaveText('$798.00');
+    if (brand === 'gh')
+      await expect(
+        page.locator('.gh-purchase-row .quantity-selector output'),
+      ).toHaveText('2');
+    else
+      await expect(
+        page.getByRole('status', { name: 'Product total' }),
+      ).toHaveText('$798.00');
     await page.getByRole('button', { name: addButton, exact: true }).click();
     await expect(
-      page.getByRole('dialog').getByRole('heading', { name: 'Your Bag (2)' }),
+      page
+        .getByRole('dialog')
+        .getByRole('heading', { name: 'In Your Bag (2)' }),
     ).toBeVisible();
-    await expect(page.getByRole('dialog')).toContainText('CHAIR-WALNUT');
+    await expect(page.getByRole('dialog')).toContainText(product.name);
     await expect(
       page.getByRole('button', { name: 'Sample Bag', exact: false }),
     ).toHaveCount(0);
@@ -313,7 +350,7 @@ test('brand changes use new Store keys and keep carts isolated', async ({
     .getByRole('button', { name: 'Open shopping bag, 0 items' })
     .click();
   await expect(
-    page.getByRole('dialog').getByRole('heading', { name: 'Your Bag (0)' }),
+    page.getByRole('dialog').getByRole('heading', { name: 'In Your Bag (0)' }),
   ).toBeVisible();
   await page.keyboard.press('Escape');
   await page.goto('/fg/cart');
@@ -328,7 +365,7 @@ test('brand changes use new Store keys and keep carts isolated', async ({
     page.getByRole('button', { name: 'Open shopping bag, 0 items' }),
   ).toBeVisible();
   await page.goto('/gh/product/' + id(5));
-  await page.getByRole('button', { name: 'ADD TO BAG', exact: true }).click();
+  await page.getByRole('button', { name: 'Add To Bag', exact: true }).click();
   await expect(page.getByRole('dialog')).toContainText('GH Connected Chair');
   await page.keyboard.press('Escape');
   await page.goto('/gr/cart');
@@ -343,6 +380,28 @@ test('brand changes use new Store keys and keep carts isolated', async ({
   await expect(
     page.getByRole('heading', { name: 'Your next favorite is waiting.' }),
   ).toBeVisible();
+});
+
+test('bag hover opens the mini cart for every storefront', async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== 'desktop',
+    'Hover behavior is desktop-only',
+  );
+  for (const brand of ['fg', 'gr', 'gh'] as const) {
+    await page.goto(`/${brand}`);
+    await page
+      .getByRole('button', { name: 'Open shopping bag, 0 items' })
+      .hover();
+    await expect(
+      page
+        .getByRole('dialog')
+        .getByRole('heading', { name: 'In Your Bag (0)' }),
+    ).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+  }
 });
 
 test('categories, search and quick view use API data', async ({
@@ -575,7 +634,7 @@ test('GR production PDP uses real swatches, gallery, inventory and quantity tota
     '$39.00',
   );
   await page.getByRole('button', { name: 'View image 2', exact: true }).click();
-  await expect(page.locator('.gallery-image img')).toHaveAttribute(
+  await expect(page.locator('.gallery-image img').first()).toHaveAttribute(
     'src',
     '/test-assets/lounge.jpg?detail=1',
   );
@@ -628,7 +687,7 @@ test('GR production PDP uses real swatches, gallery, inventory and quantity tota
     expect(details!.y).toBeGreaterThan(gallery!.y + gallery!.height);
   else expect(details!.x).toBeGreaterThan(gallery!.x);
   await page.getByRole('button', { name: 'ADD TO CART', exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText('159041 GREEN');
+  await expect(page.getByRole('dialog')).toContainText(product.name);
   expect(added).toEqual({ productId: product.id, variantId: 2, quantity: 2 });
 });
 
@@ -642,7 +701,7 @@ test('FG PDP size selection updates images, SKU, price and purchase availability
       {
         id: 1,
         sku: 'PAD-SMALL',
-        images: ['/test-assets/lounge.jpg'],
+        images: ['/test-assets/lounge.jpg', '/test-assets/lounge.jpg?detail=1'],
         price: money(4900),
         available: true,
         attributes: [{ name: 'size', value: '3 x 5' }],
@@ -650,7 +709,7 @@ test('FG PDP size selection updates images, SKU, price and purchase availability
       {
         id: 2,
         sku: 'PAD-LARGE',
-        images: ['/test-assets/chair.jpg'],
+        images: ['/test-assets/chair.jpg', '/test-assets/chair.jpg?detail=1'],
         price: money(8900),
         available: true,
         attributes: [{ name: 'size', value: '5 x 8' }],
@@ -722,6 +781,251 @@ test('FG PDP size selection updates images, SKU, price and purchase availability
       ),
     ).toBe(true);
   }
+});
+
+test('GH color and size choices preserve real variants, price, gallery and bag identity', async ({
+  page,
+}, info) => {
+  const product = {
+    ...products('gh')[0],
+    name: 'Catalog Wool Dress',
+    categories: [category('Clothing')],
+    variants: [
+      {
+        id: 1,
+        sku: 'DRESS-BLACK-S',
+        images: [
+          '/test-assets/lounge.jpg',
+          '/test-assets/lounge.jpg?detail=1',
+          '/test-assets/lounge.jpg?detail=3',
+        ],
+        price: money(12900),
+        originalPrice: money(17900),
+        available: true,
+        attributes: [
+          { name: 'color', value: 'Black' },
+          { name: 'colorHex', value: '#222222' },
+          { name: 'size', value: 'S' },
+        ],
+      },
+      {
+        id: 2,
+        sku: 'DRESS-BLACK-M',
+        images: ['/test-assets/chair.jpg', '/test-assets/chair.jpg?detail=1'],
+        price: money(13900),
+        available: true,
+        attributes: [
+          { name: 'color', value: 'Black' },
+          { name: 'colorHex', value: '#222222' },
+          { name: 'size', value: 'M' },
+        ],
+      },
+      {
+        id: 3,
+        sku: 'DRESS-GREY-M',
+        images: ['/test-assets/sofa.jpg', '/test-assets/sofa.jpg?detail=1'],
+        price: money(14900),
+        available: false,
+        attributes: [
+          { name: 'color', value: 'Grey' },
+          { name: 'colorHex', value: '#999999' },
+          { name: 'size', value: 'M' },
+        ],
+      },
+      {
+        id: 4,
+        sku: 'DRESS-IVORY-S',
+        images: ['/test-assets/lounge.jpg?detail=2'],
+        price: null,
+        attributes: [
+          { name: 'color', value: 'Ivory' },
+          { name: 'colorHex', value: '#fffff0' },
+          { name: 'size', value: 'S' },
+        ],
+      },
+    ],
+  };
+  await page.route(`**/api/products/${product.id}?*`, (route) =>
+    route.fulfill({ json: product }),
+  );
+  let addition: unknown;
+  await page.route('**/api/cart/items?store=garnethill', (route) => {
+    addition = route.request().postDataJSON();
+    return route.fulfill({
+      json: { quantity: 2, total: money(27800), items: [] },
+    });
+  });
+  await page.goto(`/gh/product/${product.id}`);
+  const panel = page.getByRole('region', { name: 'Product information' });
+  const add = page.getByRole('button', { name: 'Add To Bag', exact: true });
+  if (info.project.name !== 'mobile') {
+    const galleryViewport = page.locator('.gh-product-gallery .gallery-main');
+    const thumbnailViewport = page.locator(
+      '.gh-product-gallery .gallery-thumbnails',
+    );
+    expect(
+      await galleryViewport.evaluate((element) => ({
+        bounded: element.scrollHeight > element.clientHeight,
+        overflowY: getComputedStyle(element).overflowY,
+        scrollbarWidth: getComputedStyle(element).scrollbarWidth,
+      })),
+    ).toEqual({ bounded: true, overflowY: 'auto', scrollbarWidth: 'none' });
+    expect(
+      await thumbnailViewport.evaluate((element) => ({
+        bounded: element.scrollHeight > element.clientHeight,
+        overflowY: getComputedStyle(element).overflowY,
+        scrollbarWidth: getComputedStyle(element).scrollbarWidth,
+      })),
+    ).toEqual({ bounded: true, overflowY: 'auto', scrollbarWidth: 'none' });
+  }
+  await expect(panel.locator('select')).toHaveCount(0);
+  await expect(panel.locator('del')).toHaveText('$179.00');
+  await expect(panel.getByText('Special price', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('group', { name: /Choose Color:/ }),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Choose size M', exact: true })
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'Choose size M', exact: true }),
+  ).toHaveCSS('background-color', 'rgb(66, 72, 81)');
+  await expect(
+    page.getByRole('button', { name: 'Choose Black', exact: true }),
+  ).toHaveCSS('border-top-width', '3px');
+  await expect(page.locator('.sku')).toHaveText('SKU: DRESS-BLACK-M');
+  await expect(page.locator('.gallery-image img').first()).toHaveAttribute(
+    'src',
+    '/test-assets/chair.jpg',
+  );
+  const grey = page.getByRole('button', { name: 'Choose Grey', exact: true });
+  const ivory = page.getByRole('button', {
+    name: 'Choose Ivory',
+    exact: true,
+  });
+  await expect(grey).toBeDisabled();
+  await expect(ivory).toBeDisabled();
+  await expect(grey).toHaveClass(/gh-option-unavailable/);
+  expect(
+    await grey.evaluate(
+      (element) => getComputedStyle(element, '::after').content,
+    ),
+  ).not.toBe('none');
+  await expect(
+    page.getByRole('button', { name: 'Choose Black', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(add).toBeEnabled();
+  await page.getByRole('button', { name: 'Increase quantity' }).click();
+  await expect(
+    page.locator('.gh-purchase-row .quantity-selector output'),
+  ).toHaveText('2');
+  await expect(page.getByRole('status', { name: 'Product total' })).toHaveText(
+    '$278.00',
+  );
+  await page
+    .getByRole('button', { name: 'Enlarge product image 1', exact: true })
+    .click();
+  await expect(page.getByRole('dialog').locator('img')).toHaveAttribute(
+    'src',
+    '/test-assets/chair.jpg',
+  );
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#product-details')).toContainText(
+    product.description,
+  );
+  await expect(page.locator('#product-details')).toContainText('Size + Fit');
+  await screenshot(page, 'gh-options-pdp', info.project.name);
+  await add.click();
+  await expect
+    .poll(() => addition)
+    .toEqual({ productId: product.id, variantId: 2, quantity: 2 });
+});
+
+test('GH shell newsletter and footer work on home and PDP without subscribing remotely', async ({
+  page,
+}, info) => {
+  const writes: string[] = [];
+  page.on('request', (request) => {
+    if (request.method() !== 'GET') writes.push(request.url());
+  });
+  for (const path of ['/gh', `/gh/product/${products('gh')[0].id}`]) {
+    await page.goto(path);
+    const form = page.getByRole('form', { name: 'Garnet Hill email updates' });
+    await expect(form).toBeVisible();
+    await form.getByLabel('Your email').fill('preview@example.test');
+    await form.getByRole('button', { name: 'Subscribe', exact: true }).click();
+    await expect(
+      page.locator('.gh-footer-connect [role="status"]'),
+    ).toContainText('Thanks');
+    const columns = page.locator('.footer-column');
+    await expect(columns).toHaveCount(3);
+    if (info.project.name !== 'desktop')
+      await page
+        .locator('.site-footer')
+        .getByRole('button', { name: 'Customer Service', exact: true })
+        .click();
+    await expect(
+      page
+        .locator('.footer-links')
+        .first()
+        .getByRole('button', { name: 'Contact Us', exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Legal' })).toContainText(
+      'Privacy & Security',
+    );
+  }
+  expect(writes).toEqual([]);
+});
+
+test('GH catalog and product pages keep their final layout while commerce data loads', async ({
+  page,
+}) => {
+  let releaseCatalog!: () => void;
+  const catalogReady = new Promise<void>((resolve) => {
+    releaseCatalog = resolve;
+  });
+  await page.route('**/api/products?*', async (route) => {
+    await catalogReady;
+    const collection = products('gh');
+    await route.fulfill({
+      json: {
+        products: collection,
+        total: collection.length,
+        offset: 0,
+        limit: 24,
+      },
+    });
+  });
+  await page.goto('/gh/category/all-products');
+  await expect(
+    page.getByRole('status', { name: 'Loading products' }),
+  ).toBeVisible();
+  await expect(page.locator('.loading-card')).toHaveCount(6);
+  releaseCatalog();
+  await expect(page.locator('.shop-product-card')).toHaveCount(2);
+  await page.unroute('**/api/products?*');
+
+  let releaseProduct!: () => void;
+  const productReady = new Promise<void>((resolve) => {
+    releaseProduct = resolve;
+  });
+  const product = products('gh')[0];
+  const productRoute = /\/api\/products\/[^?]+\?[^#]*$/;
+  await page.route(productRoute, async (route) => {
+    await productReady;
+    await route.fulfill({ json: product });
+  });
+  await page.goto(`/gh/product/${product.id}`);
+  await expect(
+    page.getByRole('status', { name: 'Loading product details' }),
+  ).toBeVisible();
+  await expect(page.locator('.pdp-skeleton-image')).toBeVisible();
+  await expect(page.locator('.pdp-skeleton-option')).toHaveCount(2);
+  releaseProduct();
+  await expect(
+    page.getByRole('heading', { name: product.name, exact: true }),
+  ).toBeVisible();
+  await page.unroute(productRoute);
 });
 
 test('empty and failed stores never display static fallback products', async ({
@@ -817,7 +1121,8 @@ test('brand layouts fit narrow phones and both sides of the navigation and PDP b
       `/${brand}/product/${id(brand === 'fg' ? 1 : brand === 'gr' ? 2 : 5)}`,
     );
     await expect(page.locator('.product-info-panel h1')).toBeVisible();
-    for (const width of [320, 700, 701, 1023, 1024]) {
+    const stackedAt = brand === 'gh' ? 900 : 700;
+    for (const width of [320, 700, 701, 900, 901, 1023, 1024]) {
       await page.setViewportSize({ width, height: 1000 });
       const geometry = await page.evaluate(() => {
         const header = document
@@ -849,7 +1154,7 @@ test('brand layouts fit narrow phones and both sides of the navigation and PDP b
         geometry.info.right,
         `${brand} purchase controls at ${width}px`,
       ).toBeLessThanOrEqual(width + 1);
-      if (width <= 700)
+      if (width <= stackedAt)
         expect(geometry.info.y).toBeGreaterThanOrEqual(geometry.gallery.bottom);
       else
         expect(geometry.info.x).toBeGreaterThanOrEqual(geometry.gallery.right);
@@ -870,7 +1175,7 @@ test('a stale cart read cannot overwrite a completed add', async ({ page }) => {
   await page.getByRole('button', { name: 'ADD TO CART', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Your Bag (1)' }),
+    page.getByRole('heading', { name: 'In Your Bag (1)' }),
   ).toBeVisible();
   const response = page.waitForResponse(
     (r) => new URL(r.url()).pathname === '/api/cart',
@@ -878,7 +1183,7 @@ test('a stale cart read cannot overwrite a completed add', async ({ page }) => {
   release();
   await response;
   await expect(
-    page.getByRole('heading', { name: 'Your Bag (1)' }),
+    page.getByRole('heading', { name: 'In Your Bag (1)' }),
   ).toBeVisible();
 });
 

@@ -162,6 +162,87 @@
   width: 100%;
 }
 
+.brand-app .pdp-skeleton {
+  padding-bottom: 72px;
+}
+
+.brand-app .pdp-skeleton-breadcrumb {
+  width: min(420px, 48%);
+  height: 13px;
+  margin: 18px 0 25px;
+}
+
+.brand-app .pdp-skeleton-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brand-app .pdp-skeleton-thumbnails span {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.brand-app .pdp-skeleton-image {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.brand-app .pdp-skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.brand-app .pdp-skeleton-line {
+  height: 18px;
+}
+
+.brand-app .pdp-skeleton-line.title {
+  width: 72%;
+  height: 34px;
+}
+
+.brand-app .pdp-skeleton-line.meta {
+  width: 46%;
+}
+
+.brand-app .pdp-skeleton-line.price {
+  width: 24%;
+  height: 26px;
+}
+
+.brand-app .pdp-skeleton-option {
+  width: 100%;
+  height: 150px;
+  margin-top: 8px;
+}
+
+.brand-app .pdp-skeleton-option.compact {
+  height: 90px;
+  margin-top: 0;
+}
+
+.brand-app .pdp-skeleton-purchase {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  gap: 18px;
+}
+
+.brand-app .pdp-skeleton-purchase > div {
+  height: 58px;
+}
+
+@media (max-width: 700px) {
+  .brand-app .pdp-skeleton-thumbnails {
+    display: none;
+  }
+
+  .brand-app .pdp-skeleton-gallery {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 1100px) {
   .brand-app .product-info-panel h1 {
     font-size: 29px;

@@ -19,7 +19,8 @@ export function Icon({
     | 'check'
     | 'lock'
     | 'book'
-    | 'support';
+    | 'support'
+    | 'trash';
   size?: number;
 }) {
   const paths = {
@@ -79,6 +80,11 @@ export function Icon({
       <>
         <rect x="5" y="10" width="14" height="11" rx="1" />
         <path d="M8 10V6a4 4 0 0 1 8 0v4" />
+      </>
+    ),
+    trash: (
+      <>
+        <path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6" />
       </>
     ),
   };
@@ -157,12 +163,11 @@ export function Modal({
 
 export function Breadcrumbs({
   items,
-  separator = '/',
 }: {
   items: { label: string; href?: string }[];
-  separator?: string;
 }) {
   const brand = useBrand();
+  const separator = brand.key === 'gr' ? '>' : '/';
   return (
     <nav className="breadcrumbs" aria-label="Breadcrumb">
       <Link href={brand.route}>Home</Link>
@@ -236,8 +241,17 @@ export function InlineError({
 export function LoadingCards() {
   return (
     <div className="shop-grid" role="status" aria-label="Loading products">
-      {Array.from({ length: 4 }, (_, i) => (
-        <div key={i} className="loading-card" />
+      {Array.from({ length: 6 }, (_, i) => (
+        <article key={i} className="loading-card" aria-hidden="true">
+          <div className="loading-surface loading-card-image" />
+          <div className="loading-card-swatches">
+            <span className="loading-surface" />
+            <span className="loading-surface" />
+            <span className="loading-surface" />
+          </div>
+          <div className="loading-surface loading-card-line" />
+          <div className="loading-surface loading-card-line short" />
+        </article>
       ))}
     </div>
   );

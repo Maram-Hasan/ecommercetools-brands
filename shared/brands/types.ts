@@ -50,10 +50,14 @@ export interface BrandConfig {
     secondaryTitle: string;
     preferredCategories?: string[];
   };
-  catalog: { title: string; description: string };
+  catalog: {
+    title: string;
+    description: string;
+    layout?: 'default' | 'faceted' | 'refined';
+  };
   minicart: 'wide' | 'compact';
   pdp: {
-    purchase: 'swatches' | 'tiles';
+    purchase: 'swatches' | 'tiles' | 'options';
     addLabel?: string;
     primary: string;
     accent: string;

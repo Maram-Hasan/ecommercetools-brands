@@ -101,6 +101,7 @@ export const gr: BrandConfig = {
     title: 'All Products',
     description:
       'Your home. Your point of view. Find furniture that’s as full of personality as you are.',
+    layout: 'refined',
   },
   minicart: 'compact',
   pdp: {

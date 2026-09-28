@@ -1,14 +1,283 @@
+.brand-app[data-brand='gr'] .category-page {
+  width: 100%;
+  max-width: 1440px;
+  padding: 0 44px 72px;
+}
+
 .brand-app[data-brand='gr'] .category-intro {
+  padding: 0 0 13px;
   background: #fff;
 }
 
+.brand-app[data-brand='gr'] .category-intro > div {
+  max-width: none;
+  padding: 0;
+}
+
 .brand-app[data-brand='gr'] .category-intro h1 {
+  margin: 0;
+  font: 400 30px/1.25 var(--font-heading);
+}
+
+.brand-app[data-brand='gr'] .catalog-layout {
+  grid-template-columns: 206px minmax(0, 1fr);
+  gap: 38px;
+}
+
+.brand-app[data-brand='gr'] .gr-filter-heading {
+  min-height: 52px;
+  padding: 0;
+  border-bottom: 1px solid #222;
+}
+
+.brand-app[data-brand='gr'] .gr-filter-heading h2 {
+  margin: 0;
+  font: 700 14px/1 var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.brand-app[data-brand='gr'] .gr-filter-heading .text-button {
+  display: none;
+}
+
+.brand-app[data-brand='gr'] .gr-stock-filter {
+  padding: 15px 0 14px;
+  border-bottom: 1px solid #222;
+}
+
+.brand-app[data-brand='gr'] .gr-stock-filter label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.brand-app[data-brand='gr'] .gr-stock-filter input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.brand-app[data-brand='gr'] .gr-stock-filter label > span {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border: 1px solid #222;
+  border-radius: 20px;
+  background: white;
+}
+
+.brand-app[data-brand='gr'] .gr-stock-filter label > span::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #8b8985;
+  content: '';
+  transition: transform 160ms ease;
+}
+
+.brand-app[data-brand='gr'] .gr-stock-filter input:checked + span::after {
+  transform: translateX(24px);
+  background: var(--primary);
+}
+
+.brand-app[data-brand='gr'] .gr-stock-filter small {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+}
+
+.brand-app[data-brand='gr'] .filters > .gr-catalog-filter {
+  padding: 0 0 15px;
+  border-top: 0;
+  border-bottom: 1px solid #222;
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-filter summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  margin: 0;
+  font-size: 17px;
+  list-style: none;
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-filter summary::marker {
+  content: '';
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-filter summary::-webkit-details-marker {
+  display: none;
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-filter summary::after {
+  content: '−';
+  color: #777;
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-filter:not([open]) summary::after {
+  content: '+';
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-filter .check-row {
+  display: flex;
+  align-items: flex-start;
+  min-height: 31px;
+  gap: 7px;
+  font-size: 15px;
+  line-height: 1.15;
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-filter .check-row input {
+  width: 16px;
+  height: 16px;
+  margin: 1px 0 0;
+  border-radius: 0;
+}
+
+.brand-app[data-brand='gr'] .gr-show-more {
+  margin-top: 8px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.brand-app[data-brand='gr'] .gr-price-filter {
+  padding-bottom: 17px;
+}
+
+.brand-app[data-brand='gr'] .gr-price-range {
+  position: relative;
+  height: 18px;
+  margin: 7px 4px 0;
+}
+
+.brand-app[data-brand='gr'] .gr-price-range::before {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: #222;
+  content: '';
+}
+
+.brand-app[data-brand='gr'] .gr-price-range input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.brand-app[data-brand='gr'] .gr-price-range input::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #222;
+  border-radius: 50%;
+  appearance: none;
+  background: white;
+  pointer-events: auto;
+}
+
+.brand-app[data-brand='gr'] .gr-price-range input::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #222;
+  border-radius: 50%;
+  background: white;
+  pointer-events: auto;
+}
+
+.brand-app[data-brand='gr'] .gr-price-values {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.brand-app[data-brand='gr'] .gr-help-card {
+  margin-top: 32px;
+  padding: 25px 20px;
+  background: #9b938d;
+  color: white;
+  font: italic 700 17px/1.2 var(--font-heading);
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-toolbar {
+  min-height: 52px;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+  font-size: 14px;
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-toolbar label {
+  min-width: 240px;
+  min-height: 35px;
+  margin-left: auto;
+  padding-left: 15px;
+  border: 1px solid #222;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.brand-app[data-brand='gr'] .gr-catalog-toolbar select {
+  flex: 1;
+  min-height: 33px;
+  padding: 0 30px 0 0;
+  border: 0;
+  background: white;
+  font-size: 12px;
   font-weight: 400;
-  font-size: 32px;
+  letter-spacing: normal;
+}
+
+.brand-app[data-brand='gr'] .catalog-refresh {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .brand-app[data-brand='gr'] .category-page {
+    padding-inline: 24px;
+  }
+
+  .brand-app[data-brand='gr'] .catalog-layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 26px;
+  }
 }
 
 @media (max-width: 800px) {
+  .brand-app[data-brand='gr'] .category-page {
+    padding-inline: 16px;
+  }
+
   .brand-app[data-brand='gr'] .category-intro h1 {
     font-size: 27px;
+  }
+
+  .brand-app[data-brand='gr'] .catalog-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .brand-app[data-brand='gr'] .filters.is-open {
+    padding: 16px;
+    background: #f5f3f1;
+  }
+
+  .brand-app[data-brand='gr'] .gr-catalog-toolbar label {
+    min-width: 190px;
   }
 }
