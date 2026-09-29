@@ -103,6 +103,7 @@ export const fg: BrandConfig = {
       'Beautifully considered spaces start with exceptional pieces. Discover timeless design, enduring materials and a seat for every moment.',
   },
   minicart: 'wide',
+  cart: { title: 'Shopping Cart', estimates: true, edit: true },
   pdp: {
     purchase: 'tiles',
     primary: '#252525',

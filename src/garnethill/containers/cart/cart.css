@@ -1,0 +1,30 @@
+.brand-app[data-brand='gh'] .bag-page {
+  --cart-summary-surface: #f6f4f2;
+  --cart-checkout-color: #385f93;
+}
+.brand-app[data-brand='gh'] .bag-heading-totals {
+  font-family: var(--font-heading);
+  font-size: 30px;
+}
+.brand-app[data-brand='gh'] .cart-summary-panel h2 {
+  font: 400 23px/1.3 var(--font-heading);
+  text-transform: none;
+}
+.brand-app[data-brand='gh'] .cart-sidebar .cart-checkout {
+  font-weight: 400;
+}
+@media (min-width: 1400px) {
+  .brand-app[data-brand='gh'] .bag-page .bag-item:not(.compact) {
+    grid-template-columns: 200px minmax(0, 1fr) auto;
+    padding-block: 60px 64px;
+    gap: 40px;
+  }
+  .brand-app[data-brand='gh'] .bag-page .bag-item-image {
+    aspect-ratio: 4 / 5;
+  }
+}
+@media (max-width: 600px) {
+  .brand-app[data-brand='gh'] .bag-heading-totals {
+    font-size: 20px;
+  }
+}

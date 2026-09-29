@@ -56,6 +56,7 @@ export interface BrandConfig {
     layout?: 'default' | 'faceted' | 'refined';
   };
   minicart: 'wide' | 'compact';
+  cart: { title: string; estimates: boolean; edit: boolean };
   pdp: {
     purchase: 'swatches' | 'tiles' | 'options';
     addLabel?: string;

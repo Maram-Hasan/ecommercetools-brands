@@ -104,6 +104,7 @@ export const gr: BrandConfig = {
     layout: 'refined',
   },
   minicart: 'compact',
+  cart: { title: 'Shopping Cart', estimates: true, edit: false },
   pdp: {
     purchase: 'swatches',
     primary: '#193c56',

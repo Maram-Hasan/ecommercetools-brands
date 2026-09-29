@@ -1,4 +1,10 @@
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { useBrand } from '../../store/brand/context';
 import { Link } from '../app/router';
 import { formatPrice } from '../../utils/money';
@@ -6,16 +12,19 @@ import { useCart } from '../../store/cart/provider';
 import { Icon, Modal } from '../../components/primitives/index';
 import { CartStatus } from '../../components/cart-status/index';
 import { CartItem } from '../../components/cart-item/index';
+import { InfoDialog } from '../../components/info-dialog';
 function CartPreview({
   title,
   top,
   onClose,
   children,
+  empty = false,
 }: {
   title: string;
   top: number;
   onClose: () => void;
   children: ReactNode;
+  empty?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -29,7 +38,7 @@ function CartPreview({
       popover="auto"
       role="dialog"
       aria-label={title}
-      className="shop-modal drawer mini-cart-preview"
+      className={`shop-modal drawer mini-cart-preview${empty ? ' mini-cart-preview-empty' : ''}`}
       style={{ '--cart-preview-top': `${top}px` } as CSSProperties}
       onToggle={(event) => {
         if (event.newState === 'closed') onClose();
@@ -63,9 +72,15 @@ export function MiniCart({
   closePreview?: () => void;
 }) {
   const brand = useBrand();
+  const [signingIn, setSigningIn] = useState(false);
   const { cart, open, setOpen, loadError, loading, busy } = useCart();
+  if (signingIn)
+    return (
+      <InfoDialog title="My Account" onClose={() => setSigningIn(false)} />
+    );
   if (!open && previewTop === null) return null;
   const ready = !loadError && !loading;
+  const emptyPreview = !open && ready && cart.items.length === 0;
   const close = () => {
     setOpen(false);
     closePreview();
@@ -104,6 +119,29 @@ export function MiniCart({
             </button>
           </div>
         </>
+      ) : emptyPreview ? (
+        <div className="mini-cart-empty-content">
+          <h3>Looking for your saved finds?</h3>
+          <p>
+            <button
+              className="mini-cart-sign-in"
+              onClick={() => {
+                close();
+                setSigningIn(true);
+              }}
+            >
+              Sign in
+            </button>{' '}
+            to see items from previous visits or other devices.
+          </p>
+          <Link
+            className="button full"
+            href={`${brand.route}/cart`}
+            onClick={close}
+          >
+            View Cart
+          </Link>
+        </div>
       ) : (
         ready && (
           <div className="empty-state">
@@ -124,13 +162,20 @@ export function MiniCart({
       )}
     </>
   );
-  const title = `In Your Bag (${cart.quantity})`;
+  const title = emptyPreview
+    ? 'In Your Cart (0)'
+    : `In Your Bag (${cart.quantity})`;
   return open ? (
     <Modal title={title} variant="drawer" onClose={close}>
       {content}
     </Modal>
   ) : (
-    <CartPreview title={title} top={previewTop!} onClose={close}>
+    <CartPreview
+      title={title}
+      top={previewTop!}
+      onClose={close}
+      empty={emptyPreview}
+    >
       {content}
     </CartPreview>
   );

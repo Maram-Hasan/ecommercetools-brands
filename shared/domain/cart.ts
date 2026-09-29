@@ -10,6 +10,9 @@ export interface Cart {
     variantId?: number;
     name: string;
     sku?: string;
+    productNumber?: string;
+    attributes?: { name: string; value: string }[];
+    available?: boolean;
     image?: string;
     quantity: number;
     price: Money;

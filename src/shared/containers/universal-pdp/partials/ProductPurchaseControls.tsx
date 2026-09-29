@@ -24,7 +24,6 @@ export function ProductPurchaseControls({
     <div className="product-purchase">
       <div className="quantity-total-row">
         <div className="purchase-quantity">
-          <span>Qty:</span>
           <QuantitySelector
             value={quantity}
             onChange={onQuantityChange}

@@ -362,6 +362,127 @@ test('mobile PDP summary precedes the carousel and touch gestures scroll the pag
   }
 });
 
+test('cart reference layouts preserve brand styling, item controls and honest totals', async ({
+  page,
+}, info) => {
+  test.setTimeout(120000);
+  for (const brand of ['gh', 'gr', 'fg'] as const) {
+    const product = products(brand)[0];
+    await page.goto(`/${brand}/product/${product.id}`);
+    await page
+      .getByRole('button', {
+        name: brand === 'gh' ? 'Add To Bag' : 'ADD TO CART',
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole('dialog')
+      .getByRole('link', { name: 'View Bag', exact: true })
+      .click();
+    const line = page.locator('.cart-lines .bag-item');
+    const summary = page.getByRole('complementary', { name: 'Order summary' });
+    await expect(page.locator('.bag-page-heading h1')).toHaveText(
+      brand === 'gh' ? 'Shopping Bag' : 'Shopping Cart',
+    );
+    await expect(page.locator('.bag-heading-totals')).toContainText('1 Item');
+    await expect(page.locator('.bag-heading-totals')).toContainText('$349.00');
+    await expect(line.locator('.bag-item-number')).toHaveText(
+      'Item: #CHAIR-IVORY',
+    );
+    await expect(line.locator('.bag-item-option')).toHaveText('Finish: Ivory');
+    await expect(line.locator('.bag-item-shipping')).toHaveText('In-Stock');
+    await expect(summary.locator('.summary-total')).toContainText('$349.00');
+    await expect(
+      summary.getByRole('textbox', { name: 'Enter ZIP' }),
+    ).toHaveCount(brand === 'gh' ? 0 : 1);
+    await expect(
+      line.getByRole('button', { name: 'Edit', exact: true }),
+    ).toHaveCount(brand === 'gr' ? 0 : 1);
+    await expect(summary.locator('.cart-checkout')).toHaveCSS(
+      'background-color',
+      brand === 'gh'
+        ? 'rgb(56, 95, 147)'
+        : brand === 'gr'
+          ? 'rgb(32, 95, 130)'
+          : 'rgb(20, 38, 116)',
+    );
+    const rows = await page.locator('.cart-lines').boundingBox();
+    const side = await summary.boundingBox();
+    if (info.project.name === 'desktop')
+      expect(side!.x).toBeGreaterThanOrEqual(rows!.x + rows!.width);
+    else expect(side!.y).toBeGreaterThanOrEqual(rows!.y + rows!.height);
+    await page
+      .locator('.bag-page')
+      .screenshot({
+        path: `test-results/${brand}-cart-reference-${info.project.name}.png`,
+      });
+    if (info.project.name === 'mobile') {
+      await page.setViewportSize({ width: 320, height: 844 });
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBe(320);
+    }
+    await summary.getByRole('textbox', { name: 'Offer code' }).fill('WELCOME');
+    await summary.getByRole('button', { name: 'Apply', exact: true }).click();
+    await expect(summary.getByRole('status')).toContainText(
+      'does not apply offer codes',
+    );
+    if (brand !== 'gh') {
+      await summary.getByRole('textbox', { name: 'Enter ZIP' }).fill('90210');
+      await summary
+        .getByRole('button', { name: 'Estimate', exact: true })
+        .click();
+      await expect(
+        summary.getByText(
+          'Shipping and tax estimates are not available in this preview. Your total is unchanged.',
+        ),
+      ).toBeVisible();
+    }
+    await expect(summary.locator('.summary-total')).toContainText('$349.00');
+    await line
+      .getByRole('button', { name: 'Save for Later', exact: true })
+      .click();
+    await expect(page.getByRole('dialog')).toContainText(
+      'This item remains in your cart.',
+    );
+    await page.getByRole('button', { name: 'Close dialog' }).click();
+    await expect(line).toHaveCount(1);
+    if (brand !== 'gr') {
+      await line.getByRole('button', { name: 'Edit', exact: true }).click();
+      await page
+        .getByRole('dialog')
+        .getByRole('button', { name: 'Increase quantity' })
+        .click();
+      await page
+        .getByRole('dialog')
+        .getByRole('button', { name: 'Update Quantity' })
+        .click();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    } else
+      await line.getByRole('button', { name: 'Increase quantity' }).click();
+    await expect(page.locator('.bag-heading-totals')).toContainText('2 Items');
+    await expect(summary.locator('.summary-total')).toContainText('$698.00');
+    await summary
+      .getByRole('button', { name: 'PayPal Checkout', exact: true })
+      .click();
+    await expect(page.getByRole('dialog')).toContainText(
+      'PayPal is not connected',
+    );
+    await page.getByRole('button', { name: 'Close dialog' }).click();
+    await summary
+      .getByRole('link', { name: 'Checkout Now', exact: true })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/${brand}/checkout$`));
+    await page.goto(`/${brand}/cart`);
+    await line.getByRole('button', { name: 'Remove', exact: true }).click();
+    await expect(
+      page.getByRole('heading', { name: 'Your next favorite is waiting.' }),
+    ).toBeVisible();
+    if (info.project.name === 'mobile')
+      await page.setViewportSize({ width: 390, height: 844 });
+  }
+});
+
 test.beforeEach(async ({ page }) => {
   await page.route('**/test-assets/*', (route) => {
     const name = new URL(route.request().url()).pathname.split('/').pop();
@@ -447,6 +568,8 @@ test.beforeEach(async ({ page }) => {
               productId: entry.product.id,
               name: entry.product.name,
               sku: variant.sku,
+              attributes: 'attributes' in variant ? variant.attributes : [],
+              available: true,
               image: variant.images[0],
               price: variant.price,
               total,
@@ -607,7 +730,7 @@ for (const brand of ['fg', 'gr', 'gh'] as const) {
     await page.getByRole('button', { name: 'Increase quantity' }).click();
     await expect(page.locator('.quantity-selector output')).toHaveText('3');
     await screenshot(page, brand + '-cart', info.project.name);
-    await page.getByRole('link', { name: 'Continue to Checkout' }).click();
+    await page.getByRole('link', { name: 'Checkout Now', exact: true }).click();
     await screenshot(page, brand + '-checkout', info.project.name);
     await page
       .getByLabel('Email address', { exact: true })
@@ -708,10 +831,50 @@ test('bag hover opens the mini cart for every storefront', async ({
     await expect(
       page
         .getByRole('dialog')
-        .getByRole('heading', { name: 'In Your Bag (0)' }),
+        .getByRole('heading', { name: 'In Your Cart (0)' }),
     ).toBeVisible();
+    const preview = page.getByRole('dialog', { name: 'In Your Cart (0)' });
+    await expect(
+      preview.getByRole('heading', { name: 'Looking for your saved finds?' }),
+    ).toBeVisible();
+    await expect(preview).toContainText(
+      'to see items from previous visits or other devices.',
+    );
+    await expect(
+      preview.getByRole('link', { name: 'View Cart', exact: true }),
+    ).toHaveAttribute('href', `/${brand}/cart`);
+    await expect(preview.locator('.modal-heading h2')).toHaveCSS(
+      'font-size',
+      '24px',
+    );
+    await expect(preview).toHaveCSS('width', '535px');
+    if (brand === 'fg') {
+      await expect(
+        preview.getByRole('link', { name: 'View Cart', exact: true }),
+      ).toHaveCSS('background-color', 'rgb(20, 38, 116)');
+      await page.screenshot({
+        path: 'test-results/fg-empty-hover-mini-cart.png',
+      });
+    }
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
+    const cartLink = page.getByRole('link', {
+      name: 'Open shopping bag, 0 items',
+    });
+    await page.mouse.move(0, 0);
+    await cartLink.hover();
+    await preview.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(
+      page.getByRole('dialog', { name: 'My Account', exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Close dialog' }).click();
+    await cartLink.hover();
+    await preview.getByRole('button', { name: 'Close dialog' }).click();
+    await expect(preview).toHaveCount(0);
+    await cartLink.hover();
+    await preview.getByRole('link', { name: 'View Cart', exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/${brand}/cart$`));
+    await expect(preview).toHaveCount(0);
   }
 });
 
@@ -756,7 +919,7 @@ test('brand header cart links stay clickable during hover and mobile breadcrumbs
     await expect(cartLink).toHaveAttribute('href', `/${brand}/cart`);
     if (info.project.name === 'desktop') {
       await cartLink.hover();
-      const preview = page.getByRole('dialog', { name: 'In Your Bag (0)' });
+      const preview = page.getByRole('dialog', { name: 'In Your Cart (0)' });
       await expect(preview).toBeVisible();
       expect(await page.evaluate(() => document.body.style.overflow)).not.toBe(
         'hidden',
@@ -768,7 +931,10 @@ test('brand header cart links stay clickable during hover and mobile breadcrumbs
     }
     await expect(page).toHaveURL(new RegExp(`/${brand}/cart$`));
     await expect(
-      page.getByRole('heading', { name: 'Your Shopping Bag', exact: true }),
+      page.getByRole('heading', {
+        name: brand === 'gh' ? 'Shopping Bag' : 'Shopping Cart',
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await page.mouse.move(0, 0);

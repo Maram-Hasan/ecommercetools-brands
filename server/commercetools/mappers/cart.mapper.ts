@@ -1,6 +1,6 @@
 import type { Cart } from '@commercetools/platform-sdk';
 import type { Cart as StoreCart } from '../../../shared/domain/cart.js';
-import { localize, money } from './values.js';
+import { localize, money, attributeText } from './values.js';
 export function cartView(cart: Cart, locale: string): StoreCart {
   return {
     id: cart.id,
@@ -13,6 +13,22 @@ export function cartView(cart: Cart, locale: string): StoreCart {
       variantId: item.variant.id,
       name: localize(item.name, locale),
       sku: item.variant.sku,
+      productNumber:
+        attributeText(
+          item.variant.attributes?.find(
+            (attribute) => attribute.name === 'product-number',
+          )?.value,
+          locale,
+        ) || undefined,
+      attributes: (item.variant.attributes ?? []).flatMap((attribute) => {
+        if (!/^(size|color|colour|finish)$/i.test(attribute.name)) return [];
+        const value = attributeText(attribute.value, locale);
+        return value ? [{ name: attribute.name, value }] : [];
+      }),
+      available: (item.supplyChannel
+        ? item.variant.availability?.channels?.[item.supplyChannel.id]
+        : item.variant.availability
+      )?.isOnStock,
       image: item.variant.images?.[0]?.url,
       quantity: item.quantity,
       price: money(item.price.discounted?.value ?? item.price.value),

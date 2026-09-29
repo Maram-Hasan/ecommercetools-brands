@@ -6,6 +6,9 @@ export interface ShopCartItem {
   name: string;
   image?: string;
   sku?: string;
+  productNumber?: string;
+  attributes?: { name: string; value: string }[];
+  available?: boolean;
   variantId?: number;
   quantity: number;
   price: Money;

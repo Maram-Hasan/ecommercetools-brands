@@ -55,7 +55,24 @@ test('cart mapping retains version, product slug, variant and SKU without fabric
             productKey: 'key',
             productSlug: { en: 'chair' },
             name: { en: 'Chair' },
-            variant: { id: 3, sku: 'SKU' },
+            supplyChannel: { typeId: 'channel', id: 'store-stock' },
+            variant: {
+              id: 3,
+              sku: 'SKU',
+              attributes: [
+                { name: 'Size', value: 'Large' },
+                {
+                  name: 'Color',
+                  value: { key: 'black', label: { en: 'Black' } },
+                },
+                { name: 'product-number', value: '12345' },
+                { name: 'Badge', value: ['New'] },
+              ],
+              availability: {
+                isOnStock: true,
+                channels: { 'store-stock': { isOnStock: false } },
+              },
+            },
             quantity: 2,
             price: { value: price },
             totalPrice: { ...price, centAmount: 400 },
@@ -70,6 +87,12 @@ test('cart mapping retains version, product slug, variant and SKU without fabric
   assert.equal(mapped.items[0].productId, 'product');
   assert.equal(mapped.items[0].variantId, 3);
   assert.equal(mapped.items[0].sku, 'SKU');
+  assert.equal(mapped.items[0].productNumber, '12345');
+  assert.equal(mapped.items[0].available, false);
+  assert.deepEqual(mapped.items[0].attributes, [
+    { name: 'Size', value: 'Large' },
+    { name: 'Color', value: 'Black' },
+  ]);
   assert.equal(mapped.quantity, 2);
 });
 

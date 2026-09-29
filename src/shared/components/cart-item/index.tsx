@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { useBrand } from '../../store/brand/context';
 import { Link } from '../../containers/app/router';
 import { formatPrice } from '../../utils/money';
 import { ProductImage } from '../product-image/index';
 import type { ShopCartItem } from '../../models/cart';
 import { useCart } from '../../store/cart/provider';
-import { Icon, QuantitySelector } from '../primitives/index';
+import { Icon, Modal, QuantitySelector } from '../primitives/index';
 
 export function CartItem({
   item,
@@ -16,6 +17,8 @@ export function CartItem({
   onNavigate?: () => void;
 }) {
   const brand = useBrand();
+  const [dialog, setDialog] = useState<'edit' | 'save' | null>(null);
+  const [editQuantity, setEditQuantity] = useState(item.quantity);
   const { busy, update, remove, loadError, loading } = useCart();
   const disabled = busy || !!loadError || loading;
   const href = `${brand.route}/product/${encodeURIComponent(item.slug || item.productId)}`;
@@ -35,10 +38,21 @@ export function CartItem({
           </>
         ) : (
           <>
-            <p>{item.sku || 'Selected option'}</p>
-            <span className="bag-unit-price">
-              {formatPrice(item.price)} each
-            </span>
+            {(item.sku || item.productNumber) && (
+              <p className="bag-item-number">
+                Item: #{item.sku || item.productNumber}
+              </p>
+            )}
+            {item.attributes?.map((attribute) => (
+              <p className="bag-item-option" key={attribute.name}>
+                <span>
+                  {attribute.name.charAt(0).toUpperCase() +
+                    attribute.name.slice(1)}
+                  :
+                </span>{' '}
+                {attribute.value}
+              </p>
+            ))}
           </>
         )}
         <div className="bag-item-controls">
@@ -49,18 +63,87 @@ export function CartItem({
               onChange={(quantity) => void update(item.id, quantity)}
             />
           )}
+          {!compact && brand.cart.edit && (
+            <button
+              className="text-button"
+              disabled={disabled}
+              onClick={() => {
+                setEditQuantity(item.quantity);
+                setDialog('edit');
+              }}
+            >
+              <Icon name="edit" size={20} />
+              Edit
+            </button>
+          )}
           <button
             className="text-button"
             disabled={disabled}
             onClick={() => void remove(item.id)}
           >
-            {compact && <Icon name="trash" size={15} />}
+            <Icon name="trash" size={compact ? 15 : 20} />
             Remove
           </button>
+          {!compact && (
+            <button
+              className="text-button"
+              disabled={disabled}
+              onClick={() => setDialog('save')}
+            >
+              <Icon name="heart" size={20} />
+              Save for Later
+            </button>
+          )}
         </div>
+        {!compact && (
+          <div className="bag-item-shipping">
+            <Icon name="truck" size={23} />
+            <span>
+              {item.available === true
+                ? 'In-Stock'
+                : item.available === false
+                  ? 'Currently unavailable'
+                  : 'Shipping details available at checkout'}
+            </span>
+          </div>
+        )}
       </div>
       {!compact && (
         <strong className="bag-line-total">{formatPrice(item.total)}</strong>
+      )}
+      {dialog && (
+        <Modal
+          title={dialog === 'edit' ? 'Edit Item' : 'Save for Later'}
+          onClose={() => setDialog(null)}
+        >
+          {dialog === 'edit' ? (
+            <div className="cart-edit-item">
+              <h3>{item.name}</h3>
+              <p>{item.sku}</p>
+              <QuantitySelector
+                value={editQuantity}
+                disabled={disabled}
+                onChange={setEditQuantity}
+              />
+              <Link href={href}>View product details and options</Link>
+              <button
+                className="button"
+                disabled={disabled}
+                onClick={async () => {
+                  await update(item.id, editQuantity);
+                  setDialog(null);
+                }}
+              >
+                Update Quantity
+              </button>
+            </div>
+          ) : (
+            <p className="cart-notice">
+              Saved items are not connected in this preview. This item remains
+              in your cart.
+            </p>
+          )}
+        </Modal>
       )}
     </article>
   );

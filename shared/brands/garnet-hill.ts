@@ -134,6 +134,7 @@ export const gh: BrandConfig = {
     layout: 'faceted',
   },
   minicart: 'compact',
+  cart: { title: 'Shopping Bag', estimates: false, edit: true },
   pdp: {
     purchase: 'options',
     addLabel: 'ADD TO BAG',

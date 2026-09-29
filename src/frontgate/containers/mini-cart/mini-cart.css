@@ -2,3 +2,12 @@
   border-color: var(--primary);
   background: var(--primary);
 }
+
+.brand-app[data-brand='fg'] .mini-cart-empty-content h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.brand-app[data-brand='fg'] .mini-cart-empty-content .button {
+  background: #142674;
+  border-color: #142674;
+  color: #fff;
+}

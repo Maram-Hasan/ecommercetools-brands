@@ -20,10 +20,12 @@ export function Icon({
     | 'lock'
     | 'book'
     | 'support'
-    | 'trash';
+    | 'trash'
+    | 'edit';
   size?: number;
 }) {
   const paths = {
+    edit: <path d="m15 4 5 5M3 21l5-1L21 7a2 2 0 0 0-5-5L3 15v6Z" />,
     book: (
       <>
         <path d="M12 5v15M3 4l9 2 9-2v15l-9 2-9-2V4Z" />
